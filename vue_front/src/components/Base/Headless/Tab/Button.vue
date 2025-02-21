@@ -15,7 +15,9 @@ interface ButtonProps extends /* @vue-ignore */ ButtonHTMLAttributes {
   as?: string | object;
 }
 
-const { as = "a" } = defineProps<ButtonProps>();
+const { as } = withDefaults(defineProps<ButtonProps>(), {
+  as: "a",
+});
 
 const attrs = useAttrs();
 

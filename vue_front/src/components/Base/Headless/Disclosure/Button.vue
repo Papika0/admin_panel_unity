@@ -17,8 +17,9 @@ interface ButtonProps
   as?: string | object;
 }
 
-const { as = "button" } = defineProps<ButtonProps>();
-
+const { as } = withDefaults(defineProps<ButtonProps>(), {
+  as: "button",
+});
 
 const disclosure = inject<ProvideDisclosure>("disclosure");
 const group = inject<ProvideGroup>("group");

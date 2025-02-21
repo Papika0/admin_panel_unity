@@ -48,8 +48,12 @@ interface ButtonProps extends /* @vue-ignore */ ButtonHTMLAttributes {
   rounded?: Rounded;
 }
 
-const { as = "button", size, variant, elevated, rounded } = defineProps<ButtonProps>();
-
+const { as, size, variant, elevated, rounded } = withDefaults(
+  defineProps<ButtonProps>(),
+  {
+    as: "button",
+  }
+);
 
 const attrs = useAttrs();
 
@@ -231,7 +235,7 @@ const computedClass = computed(() =>
 </script>
 
 <template>
-  <component :is="as" :class="computedClass" v-bind="_.omit(attrs, 'class')" >
+  <component :is="as" :class="computedClass" v-bind="_.omit(attrs, 'class')">
     <slot></slot>
   </component>
 </template>

@@ -20,9 +20,6 @@
  | Import CSS components.
  |
  */
-
-@import "@vueform/multiselect/themes/default.css";
-/* @import "./multiselect.css"; */
 @import "./components/base/_box.css";
 @import "./components/base/_global.css";
 @import "./components/base/_image-fit.css";
@@ -30,7 +27,7 @@
 @import "./components/base/_typing-dots.css";
 @import "./components/base/_zoom-in.css";
 @import "./components/base/_intro.css";
-@import "./main.css";
+
 /*
  |--------------------------------------------------------------------------
  | TailwindCSS Directives

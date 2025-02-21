@@ -19,8 +19,9 @@ interface PanelProps
   as?: string | object;
 }
 
-const { as = "div" } = defineProps<PanelProps>();
-
+const { as } = withDefaults(defineProps<PanelProps>(), {
+  as: "div",
+});
 
 const dialog = inject<ProvideDialog>("dialog");
 

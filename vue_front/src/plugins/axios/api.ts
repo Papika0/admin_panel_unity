@@ -39,15 +39,14 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-
     if (error.response && error.response.status === 401) {
       // Handle unauthorized error (e.g., token expired)
 
       // Remove expired token from localStorage
       localStorage.removeItem("jwt_token");
-      
+
       // Optionally redirect to the login page
-      window.location.href = '/'; // Assuming your login page is named 'login' in your router config
+      window.location.href = "/"; // Assuming your login page is named 'login' in your router config
 
       // You can also show a notification or a message to inform the user if needed
       console.log("Unauthorized: Token expired or invalid");

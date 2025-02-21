@@ -9,7 +9,7 @@ const Component = computed(() => getTheme(themeStore.theme).component);
 
 <template>
   <div>
-    <!-- <ThemeSwitcher /> -->
+    <ThemeSwitcher />
     <Component />
   </div>
 </template>

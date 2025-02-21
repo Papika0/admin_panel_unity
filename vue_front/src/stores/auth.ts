@@ -1,7 +1,7 @@
 import { defineStore, storeToRefs } from "pinia";
 import { ref, computed, onMounted } from "vue";
 import { login, logout, getUser } from "@/http/auth_api";
-import { deleteUserCache } from "@/http/cahce";
+// import { deleteUserCache } from "@/http/cahce";
 import { useRouter } from "vue-router";
 import { toastify } from "@/utils/toast";
 import axios, { AxiosError } from "axios";
@@ -97,16 +97,16 @@ export const useAuthStore = defineStore("authStore", () => {
     }
   };
 
-  const deleteCache = async () => {
-    try {
-      const response = await deleteUserCache();
-      if (response.status === 200) {
-        window.location.reload();
-      }
-    } catch (error) {
-      console.error("Error deleting cache:", error);
-    }
-  };
+  // const deleteCache = async () => {
+  //   try {
+  //     const response = await deleteUserCache();
+  //     if (response.status === 200) {
+  //       window.location.reload();
+  //     }
+  //   } catch (error) {
+  //     console.error("Error deleting cache:", error);
+  //   }
+  // };
   const setToken = (newToken: string) => {
     token.value = newToken;
     localStorage.setItem("jwt_token", newToken); // Save token to localStorage
@@ -127,6 +127,6 @@ export const useAuthStore = defineStore("authStore", () => {
     loginUser,
     logoutUser,
     checkAuthToken,
-    deleteCache,
+    // deleteCache,
   };
 });

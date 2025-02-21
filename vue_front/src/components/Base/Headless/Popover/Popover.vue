@@ -15,8 +15,9 @@ interface PopoverProps
   as?: string | object;
 }
 
-const { as = "div" } = defineProps<PopoverProps>();
-
+const { as } = withDefaults(defineProps<PopoverProps>(), {
+  as: "div",
+});
 
 const attrs = useAttrs();
 const computedClass = computed(() =>

@@ -14,7 +14,7 @@ import Button from "@/components/Base/Button";
       'after:hidden after:xl:block after:content-[\'\'] after:w-[57%] after:-mt-[20%] after:-mb-[13%] after:-ml-[13%] after:absolute after:inset-y-0 after:left-0 after:transform after:rotate-[-4.5deg] after:bg-primary after:rounded-[100%] after:dark:bg-darkmode-700',
     ]"
   >
-    <!-- <ThemeSwitcher /> -->
+    <ThemeSwitcher />
     <div class="container relative z-10 sm:px-10">
       <div class="block grid-cols-2 gap-4 xl:grid">
         <!-- BEGIN: Register Info -->

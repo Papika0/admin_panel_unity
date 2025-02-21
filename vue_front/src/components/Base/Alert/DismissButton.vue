@@ -13,7 +13,9 @@ interface DismissButtonProps extends /* @vue-ignore */ ButtonHTMLAttributes {
   as?: string | object;
 }
 
-const { as = "button" } = defineProps<DismissButtonProps>();
+const { as } = withDefaults(defineProps<DismissButtonProps>(), {
+  as: "button",
+});
 
 const attrs = useAttrs();
 

@@ -10,7 +10,7 @@ import { twMerge } from "tailwind-merge";
 import { TransitionRoot } from "@headlessui/vue";
 import { computed, ref, type HTMLAttributes, useAttrs } from "vue";
 
-export type Variant =
+type Variant =
   | "primary"
   | "secondary"
   | "success"
@@ -43,12 +43,12 @@ interface AlertProps extends /* @vue-ignore */ HTMLAttributes {
   onHidden?: () => {};
 }
 
-const {
-  as = "div",
-  dismissible,
-  variant,
-  ...props
-} = defineProps<AlertProps>();
+const { as, dismissible, variant, ...props } = withDefaults(
+  defineProps<AlertProps>(),
+  {
+    as: "div",
+  }
+);
 
 const attrs = useAttrs();
 const show = ref<boolean>(true);

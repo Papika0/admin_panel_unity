@@ -15,8 +15,9 @@ interface TitleProps
   as?: string | object;
 }
 
-const { as = "div" } = defineProps<TitleProps>();
-
+const { as } = withDefaults(defineProps<TitleProps>(), {
+  as: "div",
+});
 
 const attrs = useAttrs();
 const computedClass = computed(() =>

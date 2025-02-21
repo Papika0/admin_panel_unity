@@ -31,7 +31,10 @@ interface PanelProps
     | "left-end";
 }
 
-const { as = "div", placement = "bottom-end" } = defineProps<PanelProps>();
+const { as } = withDefaults(defineProps<PanelProps>(), {
+  as: "div",
+  placement: "bottom-end",
+});
 
 const attrs = useAttrs();
 const computedClass = computed(() =>

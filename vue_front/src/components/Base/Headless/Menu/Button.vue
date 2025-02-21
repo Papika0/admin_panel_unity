@@ -15,7 +15,9 @@ interface ButtonProps
   as?: string | object;
 }
 
-const { as = "div" } = defineProps<ButtonProps>();
+const { as } = withDefaults(defineProps<ButtonProps>(), {
+  as: "div",
+});
 
 const attrs = useAttrs();
 const computedClass = computed(() =>

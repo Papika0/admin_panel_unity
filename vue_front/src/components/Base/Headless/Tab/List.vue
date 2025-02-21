@@ -21,7 +21,9 @@ interface ListProps
   variant?: Variant;
 }
 
-const { variant = "tabs" } = defineProps<ListProps>();
+const { variant } = withDefaults(defineProps<ListProps>(), {
+  variant: "tabs",
+});
 
 const attrs = useAttrs();
 const computedClass = computed(() =>

@@ -31,7 +31,10 @@ interface ItemsProps
     | "left-end";
 }
 
-const { as = "div", placement = "bottom-end" } = defineProps<ItemsProps>();
+const { as } = withDefaults(defineProps<ItemsProps>(), {
+  as: "div",
+  placement: "bottom-end",
+});
 
 const attrs = useAttrs();
 const computedClass = computed(() =>

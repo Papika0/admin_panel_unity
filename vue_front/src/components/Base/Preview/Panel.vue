@@ -6,7 +6,9 @@ interface PanelProps extends /* @vue-ignore */ HTMLAttributes {
   type?: "preview" | "source";
 }
 
-const { type = "preview" } = defineProps<PanelProps>();
+const { type } = withDefaults(defineProps<PanelProps>(), {
+  type: "preview",
+});
 
 const preview = inject<ProvidePreview>(
   "preview",

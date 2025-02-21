@@ -6,8 +6,6 @@ use App\Models\User;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Requests\LoginRequest;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use App\Http\Resources\AuthUserResource;
 
 class LoginController extends Controller
 {
@@ -33,7 +31,7 @@ class LoginController extends Controller
         $token = JWTAuth::fromUser($user);
 
         return response()->json([
-            'user' => new AuthUserResource($user),
+            'user' => $user,
             'token' => $token,
         ], 200);
     }

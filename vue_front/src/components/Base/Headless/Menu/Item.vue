@@ -13,20 +13,17 @@ import { useAttrs, computed } from "vue";
 interface ItemProps
   extends /* @vue-ignore */ ExtractProps<typeof HeadlessMenuItem> {
   as?: string | object;
-  active?: boolean | null;
 }
 
-
-const { as = "a", active = false } = defineProps<ItemProps>();
-
+const { as } = withDefaults(defineProps<ItemProps>(), {
+  as: "a",
+});
 
 const attrs = useAttrs();
 const computedClass = computed(() =>
   twMerge([
-    "cursor-pointer flex items-center p-2 transition duration-300 ease-in-out rounded-md dark:bg-darkmode-600 dark:hover:bg-darkmode-400",
+    "cursor-pointer flex items-center p-2 transition duration-300 ease-in-out rounded-md hover:bg-slate-200/60 dark:bg-darkmode-600 dark:hover:bg-darkmode-400",
     typeof attrs.class === "string" && attrs.class,
-    active && "bg-primary text-white ",
-    !active && "hover:bg-slate-200/60"
   ])
 );
 </script>

@@ -8,8 +8,9 @@ interface TabProps extends /* @vue-ignore */ ExtractProps<typeof HeadlessTab> {
   fullWidth?: boolean;
 }
 
-const { fullWidth = true } = defineProps<TabProps>();
-
+const { fullWidth } = withDefaults(defineProps<TabProps>(), {
+  fullWidth: true,
+});
 
 const list = inject<ProvideList>("list");
 </script>

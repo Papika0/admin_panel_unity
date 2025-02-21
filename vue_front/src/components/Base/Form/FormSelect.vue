@@ -64,14 +64,13 @@ const localValue = computed({
   },
 });
 </script>
-<!-- v-model="localValue" -->
 
 <template>
   <select
     ref="selectRef"
     :class="computedClass"
-    v-model="localValue"
     v-bind="_.omit(attrs, 'class')"
+    v-model="localValue"
   >
     <slot></slot>
   </select>

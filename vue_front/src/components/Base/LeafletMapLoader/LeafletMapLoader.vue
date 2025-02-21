@@ -6,9 +6,6 @@ import {
   type LeafletElement,
 } from "./leaflet-map-loader";
 import { type HTMLAttributes, ref, onMounted } from "vue";
-import Loading from 'vue-loading-overlay';
-import { useMainMapStore } from "@/stores/map/mainMapStore";
-import { storeToRefs } from "pinia";
 
 export type Init = (
   callback: (
@@ -24,8 +21,6 @@ interface LeafletMapLoaderProps extends /* @vue-ignore */ HTMLAttributes {
 const props = defineProps<LeafletMapLoaderProps>();
 
 const mapRef = ref<LeafletElement>();
-const mainMapStore = useMainMapStore();
-const { isLoading } = storeToRefs(mainMapStore);
 
 onMounted(() => {
   props.init((mapConfig) => {
@@ -39,13 +34,11 @@ onMounted(() => {
 <template>
   <div
     :class="{
-      
+      '[&_.leaflet-tile-pane]:saturate-[.3]': !props.darkMode,
+      '[&_.leaflet-tile-pane]:grayscale [&_.leaflet-tile-pane]:invert [&_.leaflet-tile-pane]:brightness-90 [&_.leaflet-tile-pane]:hue-rotate-15':
+        props.darkMode,
     }"
   >
-  <loading v-model:active="isLoading"
-                 :can-cancel="false"
-                 loader="dots"
-                 :is-full-page="true"/>
     <div ref="mapRef" class="w-full h-full"></div>
   </div>
 </template>

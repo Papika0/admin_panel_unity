@@ -53,7 +53,7 @@ onMounted(() => {
 <template>
   <div
     :class="[
-      'enigma py-1 px-1 md:py-0 sm:px-2 md:px-0',
+      'enigma py-5 px-5 md:py-0 sm:px-8 md:px-0',
       'before:content-[\'\'] before:bg-gradient-to-b before:from-theme-1 before:to-theme-2 dark:before:from-darkmode-800 dark:before:to-darkmode-800 md:before:bg-none md:bg-slate-200 md:dark:bg-darkmode-800 before:fixed before:inset-0 before:z-[-1]',
     ]"
   >

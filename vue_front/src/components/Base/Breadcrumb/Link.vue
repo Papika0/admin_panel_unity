@@ -9,8 +9,11 @@ interface LinkProps extends /* @vue-ignore */ LiHTMLAttributes {
   index?: number;
 }
 
-const { to = "", active = false, index = 0 } = defineProps<LinkProps>();
-
+const { to, active, index } = withDefaults(defineProps<LinkProps>(), {
+  to: "",
+  active: false,
+  index: 0,
+});
 
 const breadcrumb = inject<ProvideBeradcrumb>("breadcrumb");
 

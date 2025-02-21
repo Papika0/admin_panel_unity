@@ -4,282 +4,118 @@ import LeafletMapLoader, {
 } from "@/components/Base/LeafletMapLoader";
 import { getColor } from "@/utils/colors";
 import { useDarkModeStore } from "@/stores/dark-mode";
+import location from "@/assets/json/location.json";
 import { useColorSchemeStore } from "@/stores/color-scheme";
-import { computed, watch, ref, Ref } from "vue";
-import { useMainMapStore } from "@/stores/map/mainMapStore";
-import { storeToRefs } from "pinia";
-import proj4 from "proj4";
-import { onMounted } from "vue";
-import { MarkerCluster } from "leaflet";
-import _ from "lodash";
-import { toastify } from "@/utils/toast";
-import { createCustomIcon } from "@/utils/map";
-import { useAuthStore } from "@/stores/auth";
-import {
-  createMarker,
-  getLegend,
-  addSearchControl,
-  createClusterIcon,
-  handleMapClick,
-} from "@/pages/Map/mapService";
-import L from "leaflet";
+import { computed, watch } from "vue";
 
-interface Point {
-  id: number;
-  distr_code: string;
-  house_id: string;
-  x: number;
-  y: number;
-  status: number;
-  house_code: string;
-  full_name: string;
-  dwelling_type_id: number;
-  dwelling_type_name: string;
-  location_id: number;
-}
-
-const mainMapStore = useMainMapStore();
-const { fetchPoint } = mainMapStore;
-const { points, gps, settlementFilter } = storeToRefs(mainMapStore);
-const center: Ref<[number, number]> = ref([41.7151, 44.8271]);
 const darkMode = computed(() => useDarkModeStore().darkMode);
 const colorScheme = computed(() => useColorSchemeStore().colorScheme);
-const authStore = useAuthStore();
-const { category_id } = storeToRefs(authStore);
-
-const sumPointStatus = computed(() => {
-  return {
-    begin: _.filter(points.value, (point) => point.status === 0).length,
-    current: _.filter(points.value, (point) => point.status === 1).length,
-    success: _.filter(points.value, (point) => point.status === 2).length,
-    error: _.filter(
-      points.value,
-      (point) => point.status === 3 || point.status === 8
-    ).length,
-    deletion: _.filter(
-      points.value,
-      (point) => point.status === 4 || point.status === 9
-    ).length,
-    deleted: _.filter(
-      points.value,
-      (point) => point.status === 5 || point.status === 10
-    ).length,
-  };
-});
-
-const gpsCoordinate = ref<{ lat: number; lng: number } | null>(null);
-let watchId: number | null = null;
-
-function setupMapLayers(mapInstance: any): any {
-
-  const { map, leaflet } = mapInstance;
-
-  if (!map || !leaflet) {
-    toastify.error("დაფიქსირდა შეცდომა მოგვიანებით ცადეთ");
-    return;
-  }
-  map.whenReady(() => {
-    // Add the base tile layer
-    const baseLayerName = "googleTileLayer";
-    if (!map[baseLayerName] || !map.hasLayer(map[baseLayerName])) {
-      try {
-        const baseLayer = leaflet.tileLayer(
-          "http://mt0.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}",
-          {
-            attribution: "Map data &copy; Google",
-            minZoom: 1,
-          }
-        );
-
-        map[baseLayerName] = baseLayer;
-        baseLayer.addTo(map);
-      } catch (error) {
-        console.error("Error adding base tile layer:", error);
-      }
-    }
-
-    // Add the WMS layer
-    const wmsLayerName = "wmsTileLayer";
-    const wmsURL = "https://census-map.geostat.ge/";
-    if (!map[wmsLayerName] || !map.hasLayer(map[wmsLayerName])) {
-      try {
-        const wmsLayer = leaflet.tileLayer.wms(wmsURL, {
-          layers: "census:magalmTiani",
-          format: "image/png",
-          transparent: true,
-          version: "1.1.1",
-          attribution: "Map data &copy; Geostat",
-          minZoom: 1,
-        });
-
-        map[wmsLayerName] = wmsLayer;
-        wmsLayer.addTo(map);
-        if (category_id.value && category_id.value > 4) {
-          map.on("click", (e: any) => handleMapClick(e, map, wmsURL));
-        }
-      } catch (error) {
-        console.error("Error adding WMS layer:", error);
-      }
-    }
-
-    // Add the search control
-    addSearchControl(map, leaflet, points, "ძებნა 13 ნიშნა კოდით...", 13);
-
-    getLegend(map);
-  });
-
-  try {
-    return leaflet.markerClusterGroup({
-      maxClusterRadius: 30,
-      disableClusteringAtZoom: 13,
-      iconCreateFunction: (cluster: MarkerCluster) =>
-        createClusterIcon(cluster, leaflet, sumPointStatus.value),
-      spiderfyOnMaxZoom: false,
-      showCoverageOnHover: false,
-    });
-  } catch (error) {
-    console.error("Error creating marker cluster group:", error);
-    return null;
-  }
-}
-
-const startGpsWatch = () => {
-  if (navigator.geolocation) {
-    watchId = navigator.geolocation.watchPosition(
-      (position) => {
-        gpsCoordinate.value = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        };
-      },
-      (error) => {
-        console.error("Error watching position:", error);
-      },
-      { enableHighAccuracy: true }
-    );
-  } else {
-    console.error("Geolocation is not supported by this browser.");
-  }
-};
-
-const stopGpsWatch = () => {
-  if (watchId !== null) {
-    navigator.geolocation.clearWatch(watchId);
-    watchId = null;
-  }
-};
 
 const init: Init = async (initializeMap) => {
   const mapInstance = await initializeMap({
     config: {
-      center: center.value,
-      zoom: 12,
-      minZoom: 1,
+      center: [-6.2425342, 106.8626478],
+      zoom: 9,
     },
   });
 
-  if (!mapInstance) return;
+  if (mapInstance) {
+    const apiKey = "1e86fd5a7f60486a8e899411776f60d5";
+    const { map, leaflet } = mapInstance;
 
-  const markersLayer = setupMapLayers(mapInstance);
-  let gpsMarker: L.Marker | null = null;
+    leaflet
+      .tileLayer(
+        `https://tile.thunderforest.com/atlas/{z}/{x}/{y}@2x.png?apikey=${apiKey}`,
+        {
+          attribution:
+            "Map data &copy; OpenStreetMap contributors, Tiles &copy; Thunderforest",
+        }
+      )
+      .addTo(map);
 
-  // Function to add markers to the map
-  const addMarkers = (points: Point[]) => {
-    points.forEach((point: Point) => {
-      if (point.x !== null && point.y !== null) {
-        createMarker(point, mapInstance.leaflet, markersLayer, settlementFilter);
-        
-      }
-      
+    const markers = leaflet.markerClusterGroup({
+      maxClusterRadius: 30,
+      iconCreateFunction: function (cluster) {
+        const color =
+          darkMode.value && colorScheme.value
+            ? getColor("darkmode.100", 0.6)
+            : getColor("primary", 0.8);
+        const mapMarkerRegionSvg =
+          window.btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="55.066" height="47.691" viewBox="0 0 55.066 47.691">
+                <g id="Group_15" data-name="Group 15" transform="translate(-319.467 -83.991)">
+                  <g id="Group_14" data-name="Group 14">
+                    <path id="Intersection_4" data-name="Intersection 4" d="M12.789,17.143a15,15,0,0,1,20.7,0l-1.6,2.141-.018-.018a12.352,12.352,0,0,0-17.469,0l-.018.018Z" transform="translate(323.861 78.999)" fill="${color}" opacity="0.845"/>
+                    <path id="Intersection_5" data-name="Intersection 5" d="M10.384,13.919a19,19,0,0,1,25.511,0l-2.016,2.7a15.647,15.647,0,0,0-21.479,0Z" transform="translate(323.861 78.999)" fill="${color}" opacity="0.652"/>
+                    <path id="Intersection_6" data-name="Intersection 6" d="M7.982,10.7a22.978,22.978,0,0,1,30.313,0l-2,2.679a19.652,19.652,0,0,0-26.316,0Z" transform="translate(323.861 78.999)" fill="${color}" opacity="0.453"/>
+                  </g>
+                  <g id="Group_13" data-name="Group 13" transform="translate(427.806 461.061) rotate(-120)">
+                    <path id="Intersection_4-2" data-name="Intersection 4" d="M12.789,17.143a15,15,0,0,1,20.7,0l-1.6,2.141-.018-.018a12.352,12.352,0,0,0-17.469,0l-.018.018Z" transform="translate(323.861 78.999)" fill="${color}" opacity="0.845"/>
+                    <path id="Intersection_5-2" data-name="Intersection 5" d="M10.384,13.919a19,19,0,0,1,25.511,0l-2.016,2.7a15.647,15.647,0,0,0-21.479,0Z" transform="translate(323.861 78.999)" fill="${color}" opacity="0.652"/>
+                    <path id="Intersection_6-2" data-name="Intersection 6" d="M7.982,10.7a22.978,22.978,0,0,1,30.313,0l-2,2.679a19.652,19.652,0,0,0-26.316,0Z" transform="translate(323.861 78.999)" fill="${color}" opacity="0.453"/>
+                  </g>
+                  <circle id="Ellipse_9" data-name="Ellipse 9" cx="11" cy="11" r="11" transform="translate(336 96)" fill="${color}"/>
+                  <g id="Group_12" data-name="Group 12" transform="translate(613.194 -139.96) rotate(120)">
+                    <path id="Intersection_4-3" data-name="Intersection 4" d="M12.789,17.143a15,15,0,0,1,20.7,0l-1.6,2.141-.018-.018a12.352,12.352,0,0,0-17.469,0l-.018.018Z" transform="translate(323.861 78.999)" fill="${color}" opacity="0.845"/>
+                    <path id="Intersection_5-3" data-name="Intersection 5" d="M10.384,13.919a19,19,0,0,1,25.511,0l-2.016,2.7a15.647,15.647,0,0,0-21.479,0Z" transform="translate(323.861 78.999)" fill="${color}" opacity="0.652"/>
+                    <path id="Intersection_6-3" data-name="Intersection 6" d="M7.982,10.7a22.978,22.978,0,0,1,30.313,0l-2,2.679a19.652,19.652,0,0,0-26.316,0Z" transform="translate(323.861 78.999)" fill="${color}" opacity="0.453"/>
+                  </g>
+                </g>
+              </svg>
+            `);
+
+        return leaflet.divIcon({
+          html: `<div class="relative w-full h-full">
+                  <div class="absolute inset-0 flex items-center justify-center ml-1.5 mb-0.5 font-medium text-white">${cluster.getChildCount()}</div>
+                  <img class="w-full h-full" src="data:image/svg+xml;base64,${mapMarkerRegionSvg}">
+                </div>`,
+          className: "",
+          iconSize: leaflet.point(42, 42),
+          iconAnchor: leaflet.point(20, 45),
+        });
+      },
+      spiderfyOnMaxZoom: false,
+      showCoverageOnHover: false,
     });
 
-    // Update the map view to fit markers
-    const bounds = markersLayer.getBounds();
-    if (bounds.isValid()) {
-      const centerBounds = bounds.getCenter();
-      center.value = [centerBounds.lat, centerBounds.lng];
-      mapInstance.map.setView(center.value, mapInstance.map.getZoom());
-    }
-  };
+    map.addLayer(markers);
 
-  // Add markers and set the initial map view
-  if (points.value) {
-    addMarkers(points.value);
-  }
-
-  mapInstance.map.addLayer(markersLayer);
-
-  // Watch for changes to colorScheme and darkMode to re-initialize the map
-  const unwatch = watch([colorScheme, darkMode], () => {
-    unwatch(); // Stop watching after the first run
-    init(initializeMap); // Re-initialize the map with updated settings
-  });
-
-  // Watch for changes to points and update markers
-  watch(points, (newPoints) => {
-    if (newPoints && newPoints.length) {
-      markersLayer.clearLayers(); // Clear existing markers
-      addMarkers(newPoints); // Add new markers
-    }
-  });
-  watch(gps, (newVal, oldVal) => {
-    if (newVal) {
-
-      // Start GPS watch
-      startGpsWatch();
-    } else {
-
-      // Stop GPS watch and remove marker and circle
-      stopGpsWatch();
-      if (gpsMarker) {
-        markersLayer.removeLayer(gpsMarker);
-      }
-    }
-  });
-  // Watch for changes to GPS coordinates
-  watch(gpsCoordinate, (newVal) => {
-    if (newVal) {
-
-      // Remove old GPS marker and circle if they exist
-
-      if (gpsMarker) {
-        markersLayer.removeLayer(gpsMarker);
-      }
-
-      // Add a blue circle around the GPS marker
-      const customIcon = createCustomIcon("#3399CC");
-      gpsMarker = L.marker([newVal.lat, newVal.lng], {
-        icon: customIcon,
-      }).addTo(markersLayer!);
-
-      // Optionally, update the map view to the new GPS location
-      mapInstance.map.setView(
-        [newVal.lat, newVal.lng],
-        mapInstance.map.getZoom()
+    const color =
+      darkMode.value && colorScheme.value
+        ? getColor("darkmode.100")
+        : getColor("primary");
+    const mapMarkerSvg =
+      window.btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="20" height="31.063" viewBox="0 0 20 31.063">
+              <g id="Group_16" data-name="Group 16" transform="translate(-408 -150.001)">
+                <path id="Subtraction_21" data-name="Subtraction 21" d="M10,31.064h0L1.462,15.208A10,10,0,1,1,20,10a9.9,9.9,0,0,1-1.078,4.522l-.056.108c-.037.071-.077.146-.121.223L10,31.062ZM10,2a8,8,0,1,0,8,8,8,8,0,0,0-8-8Z" transform="translate(408 150)" fill="${color}"/>
+                <circle id="Ellipse_26" data-name="Ellipse 26" cx="6" cy="6" r="6" transform="translate(412 154)" fill="${color}"/>
+              </g>
+            </svg>
+          `);
+    location.map(function (markerElem) {
+      const marker = leaflet.marker(
+        {
+          lat: parseFloat(markerElem.latitude),
+          lng: parseFloat(markerElem.longitude),
+        },
+        {
+          title: markerElem.name,
+          icon: leaflet.icon({
+            iconUrl: `data:image/svg+xml;base64,${mapMarkerSvg}`,
+            iconAnchor: leaflet.point(10, 35),
+          }),
+        }
       );
-    }
-  });
-};
+      markers.addLayer(marker);
+    });
 
-onMounted(async () => {
-  if (category_id.value !== 5) {
-    await fetchPoint();
+    const unwatch = watch([colorScheme, darkMode], () => {
+      unwatch();
+      init(initializeMap);
+    });
   }
-});
+};
 </script>
 
 <template>
-  <!-- {{ sumPointStatus }} -->
   <LeafletMapLoader :init="init" :darkMode="darkMode" />
 </template>
-<style scoped>
-.custom-icon {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.custom-icon-z-index {
-  z-index: 1000; /* Adjust the z-index value as needed */
-}
-</style>

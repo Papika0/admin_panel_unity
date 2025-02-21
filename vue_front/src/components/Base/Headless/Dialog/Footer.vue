@@ -13,7 +13,9 @@ interface FooterProps {
   as?: string | object;
 }
 
-const { as = "div" } = defineProps<FooterProps>();
+const { as } = withDefaults(defineProps<FooterProps>(), {
+  as: "div",
+});
 
 const attrs = useAttrs();
 const computedClass = computed(() =>

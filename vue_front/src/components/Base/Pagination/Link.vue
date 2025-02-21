@@ -15,10 +15,10 @@ interface LinkProps extends /* @vue-ignore */ LiHTMLAttributes {
   active?: boolean;
 }
 
-const {
-  as = "a",
-  active = false,
-} = defineProps<LinkProps>();
+const { as, active } = withDefaults(defineProps<LinkProps>(), {
+  as: "a",
+  active: false,
+});
 
 const attrs = useAttrs();
 

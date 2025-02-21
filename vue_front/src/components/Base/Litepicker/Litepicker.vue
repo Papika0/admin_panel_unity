@@ -1,10 +1,11 @@
-<script lang="ts">
+ <script lang="ts">
 type LitepickerConfig = Partial<ILPConfiguration>;
 </script>
 
 <script setup lang="ts">
 import "@/assets/css/vendors/litepicker.css";
-import { type InputHTMLAttributes, onMounted, ref, inject, watch } from "vue";
+import { type InputHTMLAttributes, onMounted, ref, inject } from "vue";
+import { setValue, init, reInit } from "./litepicker";
 import LitepickerJs from "litepicker";
 import { FormInput } from "@/components/Base/Form";
 import { type ILPConfiguration } from "litepicker/dist/types/interfaces.d";
@@ -21,43 +22,28 @@ export interface LitepickerProps extends /* @vue-ignore */ InputHTMLAttributes {
   options: {
     format?: string | undefined;
   } & LitepickerConfig;
-  modelValue: string | null;
+  modelValue: string;
   refKey?: string;
 }
 
 export type ProvideLitepicker = (el: LitepickerElement) => void;
 
 const props = defineProps<LitepickerProps>();
-const litepickerRef = ref<LitepickerElement | null>(null);
+const litepickerRef = ref<LitepickerElement>();
+const tempValue = ref(props.modelValue);
 const emit = defineEmits<LitepickerEmit>();
-
-const initLitepicker = (el: LitepickerElement) => {
-  el.litePickerInstance = new LitepickerJs({
-    ...props.options,
-    lang: "ka-GE", // Set the language to Georgian
-    element: el,
-    setup: (picker) => {
-      picker.on("selected", (date1) => {
-        if (date1) {
-          emit(
-            "update:modelValue",
-            date1.format(props.options.format || "YYYY-MM-DD")
-          );
-        }
-      });
-    },
-  });
-};
 
 const vLitepickerDirective = {
   mounted(el: LitepickerElement) {
+    setValue(props, emit);
     if (el !== null) {
-      initLitepicker(el);
+      init(el, props, emit);
     }
   },
   updated(el: LitepickerElement) {
-    if (el !== null && el.litePickerInstance) {
-      el.litePickerInstance.setDate(props.modelValue);
+    if (tempValue.value !== props.modelValue && el !== null) {
+      reInit(el, props, emit);
+      tempValue.value = props.modelValue;
     }
   },
 };
@@ -73,27 +59,17 @@ const bindInstance = (el: LitepickerElement) => {
 
 onMounted(() => {
   if (litepickerRef.value) {
-    initLitepicker(litepickerRef.value);
     bindInstance(litepickerRef.value);
   }
 });
-
-watch(
-  () => props.modelValue,
-  (newValue) => {
-    if (litepickerRef.value && litepickerRef.value.litePickerInstance) {
-      litepickerRef.value.litePickerInstance.setDate(newValue);
-    }
-  }
-);
 </script>
 
 <template>
   <FormInput
     ref="litepickerRef"
     type="text"
-    :value="props.modelValue || ''"
-    @input="(event: Event) => {
+    :value="props.modelValue"
+    @change="(event: Event) => {
       emit('update:modelValue', (event.target as HTMLInputElement).value);
     }"
     v-litepicker-directive

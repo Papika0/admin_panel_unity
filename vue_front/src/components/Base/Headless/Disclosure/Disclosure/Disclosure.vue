@@ -17,8 +17,9 @@ interface DisclosureProps
   index?: number;
 }
 
-const { index = 0 } = defineProps<DisclosureProps>();
-
+const { index } = withDefaults(defineProps<DisclosureProps>(), {
+  index: 0,
+});
 
 const group = inject<ProvideGroup>("group");
 
