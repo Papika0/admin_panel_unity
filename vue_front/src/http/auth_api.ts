@@ -1,10 +1,10 @@
 import api from "@/plugins/axios/api";
 
 export const login = async (
-  code: string,
+  email: string,
   password: string,
   rememberMe: boolean
-) => api.post("/auth/login", { code, password, rememberMe });
+) => api.post("/auth/login", { email, password, rememberMe });
 
 export const logout = async () => api.post("/auth/logout");
 

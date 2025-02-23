@@ -8,14 +8,7 @@ import axios, { AxiosError } from "axios";
 
 export interface User {
   id: number;
-  user_name: string;
-  category_id: number;
-  category_name: string;
-  first_name: string;
-  last_name: string;
-  full_name: string;
-  distr_code: string;
-  remember_token: string;
+  role_id: number;
   // Add other user properties as needed
 }
 
@@ -25,7 +18,7 @@ enum RoutePath {
 }
 export const useAuthStore = defineStore("authStore", () => {
   const user = ref<User | null>(null);
-  const distr_code = ref<string>("");
+
   const token = ref(localStorage.getItem("jwt_token"));
   const isAuthenticated = computed(() => !!user.value);
   const router = useRouter();
@@ -35,36 +28,27 @@ export const useAuthStore = defineStore("authStore", () => {
       const { data } = await getUser();
 
       user.value = data;
-      distr_code.value = data.distr_code;
-
-      // Store category_id in local storage
-      localStorage.setItem("category_id", data.category_id);
-      localStorage.setItem("auth_distr_code", data.distr_code);
     } catch (error) {
       console.error(error);
     }
   };
 
   const loginUser = async (
-    code: string,
+    email: string,
     password: string,
     rememberMe: boolean
   ): Promise<void> => {
     try {
-      const result = await login(code, password, rememberMe);
-
-      user.value = result.data.user;
+      const result = await login(email, password, rememberMe);
+      console.log(result);
+      user.value = result.data.data.user;
       // await fetchUser();
       if (result.status === 200 && user.value) {
-        localStorage.setItem("category_id", String(user.value.category_id));
-        localStorage.setItem("auth_distr_code", String(user.value.distr_code));
-        setToken(result.data.token);
-        distr_code.value = String(user.value.distr_code);
-
+        setToken(result.data.data.token);
         router.push(RoutePath.Dashboard);
       }
     } catch (error) {
-      console.error(error);
+      console.log(error);
       if (axios.isAxiosError(error) && error.response) {
         toastify.error(
           error.response.data.message ||
@@ -88,7 +72,7 @@ export const useAuthStore = defineStore("authStore", () => {
     }
   };
 
-  const category_id = computed(() => user.value?.category_id);
+  const role_id = computed(() => user.value?.role_id);
 
   const checkAuthToken = async () => {
     const authToken = localStorage.getItem("jwt_token");
@@ -121,11 +105,10 @@ export const useAuthStore = defineStore("authStore", () => {
   return {
     user,
     isAuthenticated,
-    distr_code,
-    category_id,
     fetchUser,
     loginUser,
     logoutUser,
+    role_id,
     checkAuthToken,
     // deleteCache,
   };

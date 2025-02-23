@@ -44,7 +44,7 @@ const switchDarkMode = (darkMode: boolean) => {
 };
 setDarkModeClass();
 
-const themes: Array<Themes["name"]> = ["rubick", "icewall", "tinker", "enigma"];
+const themes: Array<Themes["name"]> = ["enigma"];
 const layouts: Array<Themes["layout"]> = [
   "side-menu",
   "simple-menu",
@@ -68,27 +68,22 @@ const layoutImages = import.meta.glob<{
 
 <template>
   <div>
-    <Slideover
-      :open="themeSwitcherSlideover"
-      @close="
-        () => {
-          setThemeSwitcherSlideover(false);
-        }
-      "
-    >
+    <Slideover :open="themeSwitcherSlideover" @close="
+      () => {
+        setThemeSwitcherSlideover(false);
+      }
+    ">
       <Slideover.Panel>
-        <a
-          class="absolute inset-y-0 left-0 right-auto my-auto -ml-[60px] flex h-8 w-8 items-center justify-center rounded-full border border-white/90 bg-white/5 text-white/90 transition-all hover:rotate-180 hover:scale-105 hover:bg-white/10 focus:outline-none sm:-ml-[105px] sm:h-14 sm:w-14"
+        <a class="absolute inset-y-0 left-0 right-auto my-auto -ml-[60px] flex h-8 w-8 items-center justify-center rounded-full border border-white/90 bg-white/5 text-white/90 transition-all hover:rotate-180 hover:scale-105 hover:bg-white/10 focus:outline-none sm:-ml-[105px] sm:h-14 sm:w-14"
           @click="(event: MouseEvent) => {
             event.preventDefault();
             setThemeSwitcherSlideover(false);
-          }"
-        >
+          }">
           <Lucide class="h-3 w-3 stroke-[1] sm:h-8 sm:w-8" icon="X" />
         </a>
         <Slideover.Description class="p-0">
           <div class="flex flex-col">
-   
+
             <div class="border-b border-dashed"></div>
             <div class="border-b border-dashed"></div>
             <div class="px-8 pt-6 pb-8">
@@ -96,33 +91,26 @@ const layoutImages = import.meta.glob<{
               <div class="mt-0.5 text-slate-500">Choose your accent color</div>
               <div class="mt-5 grid grid-cols-2 gap-3.5">
                 <div v-for="colorScheme in colorSchemes">
-                  <a
-                    @click="(event: MouseEvent) => {
-                      event.preventDefault();
-                      switchColorScheme(colorScheme)
-                    }"
-                    :class="[
+                  <a @click="(event: MouseEvent) => {
+                    event.preventDefault();
+                    switchColorScheme(colorScheme)
+                  }" :class="[
                       'h-14 cursor-pointer bg-slate-50 box p-1 border-slate-300/80 block',
                       '[&.active]:border-2 [&.active]:border-theme-1/60',
                       colorSchemeStore.colorSchemeValue == colorScheme
                         ? 'active'
                         : '',
-                    ]"
-                  >
+                    ]">
                     <div class="h-full overflow-hidden rounded-md">
                       <div class="flex items-center h-full gap-1 -mx-2">
-                        <div
-                          :class="[
-                            'w-1/2 h-[200%] bg-theme-1 rotate-12',
-                            colorScheme,
-                          ]"
-                        ></div>
-                        <div
-                          :class="[
-                            'w-1/2 h-[200%] bg-theme-2 rotate-12',
-                            colorScheme,
-                          ]"
-                        ></div>
+                        <div :class="[
+                          'w-1/2 h-[200%] bg-theme-1 rotate-12',
+                          colorScheme,
+                        ]"></div>
+                        <div :class="[
+                          'w-1/2 h-[200%] bg-theme-2 rotate-12',
+                          colorScheme,
+                        ]"></div>
                       </div>
                     </div>
                   </a>
@@ -135,38 +123,28 @@ const layoutImages = import.meta.glob<{
               <div class="mt-0.5 text-slate-500">Choose your appearance</div>
               <div class="mt-5 grid grid-cols-2 gap-3.5">
                 <div>
-                  <a
-                    @click="(event: MouseEvent) => {
-                      event.preventDefault();
-                      switchDarkMode(false)
-                    }"
-                    :class="[
+                  <a @click="(event: MouseEvent) => {
+                    event.preventDefault();
+                    switchDarkMode(false)
+                  }" :class="[
                       'h-12 cursor-pointer bg-slate-50 box p-1 border-slate-300/80 block',
                       '[&.active]:border-2 [&.active]:border-theme-1/60',
                       !darkModeStore.darkModeValue ? 'active' : '',
-                    ]"
-                  >
-                    <div
-                      class="h-full overflow-hidden rounded-md bg-slate-200"
-                    ></div>
+                    ]">
+                    <div class="h-full overflow-hidden rounded-md bg-slate-200"></div>
                   </a>
                   <div class="mt-2.5 text-center text-xs capitalize">Light</div>
                 </div>
                 <div>
-                  <a
-                    @click="(event: MouseEvent) => {
-                      event.preventDefault();
-                      switchDarkMode(true)
-                    }"
-                    :class="[
+                  <a @click="(event: MouseEvent) => {
+                    event.preventDefault();
+                    switchDarkMode(true)
+                  }" :class="[
                       'h-12 cursor-pointer bg-slate-50 box p-1 border-slate-300/80 block',
                       '[&.active]:border-2 [&.active]:border-theme-1/60',
                       darkModeStore.darkModeValue ? 'active' : '',
-                    ]"
-                  >
-                    <div
-                      class="h-full overflow-hidden rounded-md bg-slate-900"
-                    ></div>
+                    ]">
+                    <div class="h-full overflow-hidden rounded-md bg-slate-900"></div>
                   </a>
                   <div class="mt-2.5 text-center text-xs capitalize">Dark</div>
                 </div>
@@ -181,8 +159,7 @@ const layoutImages = import.meta.glob<{
       @click="(event: MouseEvent) => {
         event.preventDefault();
         setThemeSwitcherSlideover(true);
-    }"
-    >
+      }">
       <Lucide class="w-5 h-5 animate-spin" icon="Settings" />
     </div>
   </div>
