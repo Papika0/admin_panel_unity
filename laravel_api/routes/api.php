@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\TranslationController;
 
 
 /*
@@ -24,4 +25,14 @@ Route::prefix('auth')->group(function () {
 
 Route::middleware('auth:api')->group(function () {
     Route::get('/user', [UserController::class, 'getUser']);
+
+
+    Route::prefix('translations')->controller(TranslationController::class)->group(function () {
+        Route::get('/', 'getTranslations');
+        Route::post('/', 'createTranslation');
+        Route::post('/{id}', 'updateTranslation');
+        // Route::post('/{id}', 'deleteTranslation');
+        Route::get('/{id}', 'getTranslation');
+        Route::get('/group/{group}', 'getTranslationsByGroup');
+    });
 });

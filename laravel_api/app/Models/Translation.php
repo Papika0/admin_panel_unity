@@ -11,7 +11,7 @@ class Translation extends Model
     use HasFactory;
     use HasTranslations;
 
-    protected $fillable = ['key', 'text'];
+    protected $fillable = ['key', 'text', 'group', 'active'];
 
     public $translatable = ['text'];
 

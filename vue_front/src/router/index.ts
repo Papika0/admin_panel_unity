@@ -31,21 +31,14 @@ const routes: Array<RouteRecordRaw & { meta: RouteMeta }> = [
         component: () => import("../pages/DashboardOverview1.vue"),
       },
 
-      // {
-      //   path: "settlements-information",
-      //   name: "settlements-information",
-      //   meta: {
-      //     breadcrumb: [
-      //       { label: "მთავარი", path: "dashboard" },
-      //       {
-      //         label: "დაასახლებები",
-      //         path: "settlements-information",
-      //       },
-      //     ],
-      //     userCategory: [5, 6],
-      //   },
-      //   component: () => import("../pages/SettlementInformation.vue"),
-      // },
+      {
+        path: "translations",
+        name: "translations-editor",
+        meta: {
+          breadcrumb: [{ label: "ტექსტები", path: "translations" }],
+        },
+        component: () => import("../pages/TransaltionEditor.vue"),
+      },
 
       {
         path: ":pathMatch(.*)*",
