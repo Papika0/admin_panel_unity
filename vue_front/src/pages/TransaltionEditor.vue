@@ -1,119 +1,131 @@
 <script setup lang="ts">
 import _ from "lodash";
+import { useTranslationsStore } from "@/stores/tranlations";
+import { onBeforeMount } from "vue";
+import { storeToRefs } from "pinia";
 import Lucide from "@/components/Base/Lucide";
-import Tippy from "@/components/Base/Tippy";
+import Table from "@/components/Base/Table";
+import Pagination from "@/components/Base/Pagination";
 
+const translationsStore = useTranslationsStore();
+const { translations, pages, showPaginate, pagination } = storeToRefs(translationsStore);
+const { goToPage } = translationsStore;
+
+onBeforeMount(() => {
+    translationsStore.fetchTranslations();
+});
 </script>
 
 <template>
     <div class="grid grid-cols-12 gap-6">
-        <div class="col-span-12 2xl:col-span-12">
-            <div class="grid grid-cols-12 gap-6">
-                <!-- BEGIN: General Report -->
-                <div class="col-span-12 mt-8">
-                    <div class="flex items-center h-10 intro-y">
-                        <h2 class="mr-5 text-lg font-medium truncate">ძირითადი ინფორმაცია</h2>
-                        <a href="" class="flex items-center ml-auto text-primary">
-                            <Lucide icon="RefreshCcw" class="w-4 h-4 mr-3" /> Reload Data
-                        </a>
-                    </div>
-                    <div class="grid grid-cols-12 gap-6 mt-5">
-                        <div class="col-span-12 sm:col-span-6 xl:col-span-3 intro-y">
-                            <div :class="[
-                                'relative zoom-in',
-                                'before:box before:absolute before:inset-x-3 before:mt-3 before:h-full before:bg-slate-50 before:content-[\'\']',
+        <div class="col-span-12 mt-8">
+            <div class="flex items-center h-10 intro-y">
+                <h2 class="mr-5 text-lg font-medium truncate">გამოყენებული ტექსტები</h2>
+            </div>
+
+            <div class="col-span-12 overflow-auto intro-y lg:overflow-visible">
+                <Table class="border-spacing-y-[10px] border-separate -mt-2">
+                    <Table.Thead>
+                        <Table.Tr>
+                            <!-- <Table.Th class="border-b-0 whitespace-nowrap"> IMAGES </Table.Th> -->
+                            <Table.Th class="border-b-0 whitespace-nowrap font-black">
+                                საიდენტიფიკაციო კოდი
+                            </Table.Th>
+                            <Table.Th class="border-b-0 whitespace-nowrap font-black">
+                                ტექსტი ქართულად
+                            </Table.Th>
+                            <Table.Th class="border-b-0 whitespace-nowrap font-black">
+                                ტექსტი ინგლისურად
+                            </Table.Th>
+                            <Table.Th class="text-center border-b-0 whitespace-nowrap font-black">
+                                ტექსტი რუსულად
+                            </Table.Th>
+                            <Table.Th class="text-center border-b-0 whitespace-nowrap font-black">
+                                ჯგუფი
+                            </Table.Th>
+                            <Table.Th class="text-center border-b-0 whitespace-nowrap font-black">
+                                აქტიურია
+                            </Table.Th>
+                            <Table.Th class="text-center border-b-0 whitespace-nowrap font-black">
+                                ACTIONS
+                            </Table.Th>
+                        </Table.Tr>
+                    </Table.Thead>
+                    <Table.Tbody>
+                        <Table.Tr v-for="(value, index) in translations" :key="index" class="intro-x">
+                            <Table.Td
+                                class="box rounded-l-none rounded-r-none border-x-0 text-center shadow-[5px_3px_5px_#00000005] first:rounded-l-[0.6rem] first:border-l last:rounded-r-[0.6rem] last:border-r dark:bg-darkmode-600 font-black">
+                                {{ value.key }}
+                            </Table.Td>
+                            <Table.Td
+                                class="box rounded-l-none rounded-r-none border-x-0 text-center shadow-[5px_3px_5px_#00000005] first:rounded-l-[0.6rem] first:border-l last:rounded-r-[0.6rem] last:border-r dark:bg-darkmode-600 font-black">
+                                {{ value.text_ka }}
+                            </Table.Td>
+
+                            <Table.Td class=" box rounded-l-none rounded-r-none border-x-0 text-center
+                                shadow-[5px_3px_5px_#00000005] first:rounded-l-[0.6rem] first:border-l
+                                last:rounded-r-[0.6rem] last:border-r dark:bg-darkmode-600 font-black">
+                                {{ value.text_en }}
+                            </Table.Td>
+                            <Table.Td class=" box rounded-l-none rounded-r-none border-x-0 text-center
+                                shadow-[5px_3px_5px_#00000005] first:rounded-l-[0.6rem] first:border-l
+                                last:rounded-r-[0.6rem] last:border-r dark:bg-darkmode-600 font-black">
+                                {{ value.text_ru }}
+                            </Table.Td>
+                            <Table.Td class=" box rounded-l-none rounded-r-none border-x-0 text-center
+                                shadow-[5px_3px_5px_#00000005] first:rounded-l-[0.6rem] first:border-l
+                                last:rounded-r-[0.6rem] last:border-r dark:bg-darkmode-600 font-black">
+                                {{ value.group }}
+                            </Table.Td>
+                            <Table.Td class=" box rounded-l-none rounded-r-none border-x-0 text-center
+                                shadow-[5px_3px_5px_#00000005] first:rounded-l-[0.6rem] first:border-l
+                                last:rounded-r-[0.6rem] last:border-r dark:bg-darkmode-600 font-black">
+                                {{ value.active ? "კი" : "არა" }}
+                            </Table.Td>
+                            <Table.Td :class="[
+                                'box w-56 rounded-l-none rounded-r-none border-x-0 shadow-[5px_3px_5px_#00000005] first:rounded-l-[0.6rem] first:border-l last:rounded-r-[0.6rem] last:border-r dark:bg-darkmode-600 font-black',
+                                'before:absolute before:inset-y-0 before:left-0 before:my-auto before:block before:h-8 before:w-px before:bg-slate-200 before:dark:bg-darkmode-400',
+                                ,
                             ]">
-                                <div class="p-5 box">
-                                    <div class="flex">
-                                        <Lucide icon="ShoppingCart" class="w-[28px] h-[28px] text-primary" />
-                                        <div class="ml-auto">
-                                            <Tippy as="div"
-                                                class="cursor-pointer bg-success py-[3px] flex rounded-full text-white text-xs pl-2 pr-1 items-center font-medium"
-                                                content="33% Higher than last month">
-                                                33%
-                                                <Lucide icon="ChevronUp" class="w-4 h-4 ml-0.5" />
-                                            </Tippy>
-                                        </div>
-                                    </div>
-                                    <div class="mt-6 text-3xl font-medium leading-8">4.710</div>
-                                    <div class="mt-1 text-base text-slate-500">სააღწერო უბნები</div>
+                                <div class="flex items-center justify-center">
+                                    <button class="button button--sm button--primary mr-1">
+                                        <Lucide icon="Edit" class="w-4 h-4" />
+                                    </button>
+
                                 </div>
-                            </div>
-                        </div>
-                        <div class="col-span-12 sm:col-span-6 xl:col-span-3 intro-y">
-                            <div :class="[
-                                'relative zoom-in',
-                                'before:box before:absolute before:inset-x-3 before:mt-3 before:h-full before:bg-slate-50 before:content-[\'\']',
-                            ]">
-                                <div class="p-5 box">
-                                    <div class="flex">
-                                        <Lucide icon="CreditCard" class="w-[28px] h-[28px] text-pending" />
-                                        <div class="ml-auto">
-                                            <Tippy as="div"
-                                                class="cursor-pointer bg-danger py-[3px] flex rounded-full text-white text-xs pl-2 pr-1 items-center font-medium"
-                                                content="2% Lower than last month">
-                                                2%
-                                                <Lucide icon="ChevronDown" class="w-4 h-4 ml-0.5" />
-                                            </Tippy>
-                                        </div>
-                                    </div>
-                                    <div class="mt-6 text-3xl font-medium leading-8">3.721</div>
-                                    <div class="mt-1 text-base text-slate-500">აღწერილი მოსახლეობა</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-span-12 sm:col-span-6 xl:col-span-3 intro-y">
-                            <div :class="[
-                                'relative zoom-in',
-                                'before:box before:absolute before:inset-x-3 before:mt-3 before:h-full before:bg-slate-50 before:content-[\'\']',
-                            ]">
-                                <div class="p-5 box">
-                                    <div class="flex">
-                                        <Lucide icon="Monitor" class="w-[28px] h-[28px] text-warning" />
-                                        <div class="ml-auto">
-                                            <Tippy as="div"
-                                                class="cursor-pointer bg-success py-[3px] flex rounded-full text-white text-xs pl-2 pr-1 items-center font-medium"
-                                                content="12% Higher than last month">
-                                                12%
-                                                <Lucide icon="ChevronUp" class="w-4 h-4 ml-0.5" />
-                                            </Tippy>
-                                        </div>
-                                    </div>
-                                    <div class="mt-6 text-3xl font-medium leading-8">2.149</div>
-                                    <div class="mt-1 text-base text-slate-500">
-                                        აღწერილი შინამეურნოება
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-span-12 sm:col-span-6 xl:col-span-3 intro-y">
-                            <div :class="[
-                                'relative zoom-in',
-                                'before:box before:absolute before:inset-x-3 before:mt-3 before:h-full before:bg-slate-50 before:content-[\'\']',
-                            ]">
-                                <div class="p-5 box">
-                                    <div class="flex">
-                                        <Lucide icon="User" class="w-[28px] h-[28px] text-success" />
-                                        <div class="ml-auto">
-                                            <Tippy as="div"
-                                                class="cursor-pointer bg-success py-[3px] flex rounded-full text-white text-xs pl-2 pr-1 items-center font-medium"
-                                                content="22% Higher than last month">
-                                                22%
-                                                <Lucide icon="ChevronUp" class="w-4 h-4 ml-0.5" />
-                                            </Tippy>
-                                        </div>
-                                    </div>
-                                    <div class="mt-6 text-3xl font-medium leading-8">152.040</div>
-                                    <div class="mt-1 text-base text-slate-500">
-                                        შევსებული კითხვარები
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                            </Table.Td>
+                        </Table.Tr>
+                    </Table.Tbody>
+                </Table>
+            </div>
+            <!-- END: Data List -->
+            <!-- BEGIN: Pagination -->
+            <div class="flex flex-wrap items-center col-span-12 intro-y sm:flex-row sm:flex-nowrap">
+                <Pagination class="w-full sm:w-auto sm:mr-auto" v-if="showPaginate">
+                    <Pagination.Link @click="goToPage(1)" :disabled="pagination.current_page === 1">
+                        <Lucide icon="ChevronsLeft" class="w-4 h-4" />
+                    </Pagination.Link>
+                    <Pagination.Link @click="goToPage(pagination.current_page - 1)"
+                        :disabled="pagination.current_page === 1">
+                        <Lucide icon="ChevronLeft" class="w-4 h-4" />
+                    </Pagination.Link>
+                    <Pagination.Link v-if="pagination.current_page > 2">...</Pagination.Link>
+                    <Pagination.Link v-for="page in pages" :key="page" @click="goToPage(page)"
+                        :class="{ 'paginate-active-class': page === pagination.current_page }">
+                        <!-- :active="page === pagination.current_page" -->
+                        {{ page }}
+                    </Pagination.Link>
+                    <Pagination.Link v-if="pagination.current_page < pagination.last_page - 1">...</Pagination.Link>
+                    <Pagination.Link @click="goToPage(pagination.current_page + 1)"
+                        :disabled="pagination.current_page === pagination.last_page">
+                        <Lucide icon="ChevronRight" class="w-4 h-4" />
+                    </Pagination.Link>
+                    <Pagination.Link @click="goToPage(pagination.last_page)"
+                        :disabled="pagination.current_page === pagination.last_page">
+                        <Lucide icon="ChevronsRight" class="w-4 h-4" />
+                    </Pagination.Link>
+                </Pagination>
             </div>
         </div>
-
     </div>
 </template>

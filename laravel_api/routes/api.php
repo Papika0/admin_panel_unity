@@ -28,7 +28,7 @@ Route::middleware('auth:api')->group(function () {
 
 
     Route::prefix('translations')->controller(TranslationController::class)->group(function () {
-        Route::get('/', 'getTranslations');
+        Route::get('/{page}', 'getTranslations');
         Route::post('/', 'createTranslation');
         Route::post('/{id}', 'updateTranslation');
         // Route::post('/{id}', 'deleteTranslation');

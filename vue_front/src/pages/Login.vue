@@ -45,14 +45,8 @@ const handleSubmit = async (event: Event) => {
           </a>
           <div class="my-auto">
             <img alt="Midone Tailwind HTML Admin Template" class="w-1/2 -mt-16 -intro-x" :src="illustrationUrl" />
-            <!-- <div
-              class="mt-10 text-4xl font-medium leading-tight text-white -intro-x"
-            >
-              A few more clicks to <br />
-              sign in to your account.
-            </div> -->
             <div class="mt-5 text-lg text-white -intro-x text-opacity-70 dark:text-slate-400">
-              <!-- Manage all your e-commerce accounts in one place -->
+
             </div>
           </div>
         </div>
@@ -86,7 +80,8 @@ const handleSubmit = async (event: Event) => {
               <!-- <a href="">Forgot Password?</a> -->
             </div>
             <div class="mt-5 text-center intro-x xl:mt-8 xl:text-left">
-              <Button @click="handleSubmit" variant="primary" class="w-full px-4 py-3 align-top xl:w-32 xl:mr-3">
+              <Button type="submit" @click="handleSubmit" variant="primary"
+                class="w-full px-4 py-3 align-top xl:w-32 xl:mr-3">
                 შესვლა
               </Button>
             </div>

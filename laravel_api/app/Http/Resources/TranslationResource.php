@@ -11,7 +11,9 @@ class TranslationResource extends JsonResource
         return [
             'id' => $this->id,
             'key' => $this->key,
-            'text' => $this->text,
+            'text_en' => $this->getTranslation('text', 'en'),
+            'text_ka' => $this->getTranslation('text', 'ka'),
+            'text_ru' => $this->getTranslation('text', 'ru'),
             'group' => $this->group,
             'active' => $this->active,
         ];

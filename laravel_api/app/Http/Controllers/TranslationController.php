@@ -13,7 +13,9 @@ class TranslationController extends Controller
     public function getTranslations(Request $request)
     {
         $perPage = $request->input('per_page', 15);
-        return new TranslationCollection(Translation::paginate($perPage));
+
+        $data = Translation::paginate($perPage);
+        return new TranslationCollection($data);
     }
 
     public function createTranslation(TranslationRequest $request)
