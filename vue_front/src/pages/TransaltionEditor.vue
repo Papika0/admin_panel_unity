@@ -6,6 +6,7 @@ import { storeToRefs } from "pinia";
 import Lucide from "@/components/Base/Lucide";
 import Table from "@/components/Base/Table";
 import Pagination from "@/components/Base/Pagination";
+import EditTranslationButton from "@/components/Button/EditTranslationButton.vue";
 
 const translationsStore = useTranslationsStore();
 const { translations, pages, showPaginate, pagination } = storeToRefs(translationsStore);
@@ -85,12 +86,10 @@ onBeforeMount(() => {
                             <Table.Td :class="[
                                 'box w-56 rounded-l-none rounded-r-none border-x-0 shadow-[5px_3px_5px_#00000005] first:rounded-l-[0.6rem] first:border-l last:rounded-r-[0.6rem] last:border-r dark:bg-darkmode-600 font-black',
                                 'before:absolute before:inset-y-0 before:left-0 before:my-auto before:block before:h-8 before:w-px before:bg-slate-200 before:dark:bg-darkmode-400',
-                                ,
+
                             ]">
                                 <div class="flex items-center justify-center">
-                                    <button class="button button--sm button--primary mr-1">
-                                        <Lucide icon="Edit" class="w-5 h-5 text-blue-500" />
-                                    </button>
+                                    <EditTranslationButton :user="value" :currentPage="pagination.current_page" />
                                 </div>
                             </Table.Td>
                         </Table.Tr>
