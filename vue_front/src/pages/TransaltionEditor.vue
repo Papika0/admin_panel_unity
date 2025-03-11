@@ -89,9 +89,8 @@ onBeforeMount(() => {
                             ]">
                                 <div class="flex items-center justify-center">
                                     <button class="button button--sm button--primary mr-1">
-                                        <Lucide icon="Edit" class="w-4 h-4" />
+                                        <Lucide icon="Edit" class="w-5 h-5 text-blue-500" />
                                     </button>
-
                                 </div>
                             </Table.Td>
                         </Table.Tr>
