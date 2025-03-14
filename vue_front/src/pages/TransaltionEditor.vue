@@ -7,6 +7,7 @@ import Lucide from "@/components/Base/Lucide";
 import Table from "@/components/Base/Table";
 import Pagination from "@/components/Base/Pagination";
 import EditTranslationButton from "@/components/Button/EditTranslationButton.vue";
+import AddTranslationButton from "@/components/Button/AddTranslationButton.vue";
 
 const translationsStore = useTranslationsStore();
 const { translations, pages, showPaginate, pagination } = storeToRefs(translationsStore);
@@ -20,12 +21,13 @@ onBeforeMount(() => {
 <template>
     <div class="grid grid-cols-12 gap-6">
         <div class="col-span-12 mt-8">
-            <div class="flex items-center h-10 intro-y">
+            <div class="flex items-center h-10 intro-y justify-between">
                 <h2 class="mr-5 text-lg font-medium truncate">გამოყენებული ტექსტები</h2>
+                <AddTranslationButton />
             </div>
 
             <div class="col-span-12 overflow-auto intro-y lg:overflow-visible">
-                <Table class="border-spacing-y-[10px] border-separate -mt-2">
+                <Table class="table-fixed border-spacing-y-[10px] border-separate -mt-2">
                     <Table.Thead>
                         <Table.Tr>
                             <!-- <Table.Th class="border-b-0 whitespace-nowrap"> IMAGES </Table.Th> -->
@@ -59,23 +61,26 @@ onBeforeMount(() => {
                                 {{ value.key }}
                             </Table.Td>
                             <Table.Td
-                                class="box rounded-l-none rounded-r-none border-x-0 text-center shadow-[5px_3px_5px_#00000005] first:rounded-l-[0.6rem] first:border-l last:rounded-r-[0.6rem] last:border-r dark:bg-darkmode-600 font-black">
+                                class="box rounded-l-none whitespace-normal break-words rounded-r-none border-x-0 text-center shadow-[5px_3px_5px_#00000005] first:rounded-l-[0.6rem] first:border-l last:rounded-r-[0.6rem] last:border-r dark:bg-darkmode-600 font-black">
                                 {{ value.text_ka }}
                             </Table.Td>
 
-                            <Table.Td class=" box rounded-l-none rounded-r-none border-x-0 text-center
+                            <Table.Td
+                                class=" box rounded-l-none rounded-r-none border-x-0 text-center
                                 shadow-[5px_3px_5px_#00000005] first:rounded-l-[0.6rem] first:border-l
-                                last:rounded-r-[0.6rem] last:border-r dark:bg-darkmode-600 font-black">
+                                last:rounded-r-[0.6rem] last:border-r dark:bg-darkmode-600 font-black whitespace-normal break-words">
                                 {{ value.text_en }}
                             </Table.Td>
-                            <Table.Td class=" box rounded-l-none rounded-r-none border-x-0 text-center
+                            <Table.Td
+                                class=" box rounded-l-none rounded-r-none border-x-0 text-center 
                                 shadow-[5px_3px_5px_#00000005] first:rounded-l-[0.6rem] first:border-l
-                                last:rounded-r-[0.6rem] last:border-r dark:bg-darkmode-600 font-black">
+                                last:rounded-r-[0.6rem] last:border-r dark:bg-darkmode-600 font-black whitespace-normal break-words">
                                 {{ value.text_ru }}
                             </Table.Td>
-                            <Table.Td class=" box rounded-l-none rounded-r-none border-x-0 text-center
+                            <Table.Td
+                                class=" box rounded-l-none rounded-r-none border-x-0 text-center
                                 shadow-[5px_3px_5px_#00000005] first:rounded-l-[0.6rem] first:border-l
-                                last:rounded-r-[0.6rem] last:border-r dark:bg-darkmode-600 font-black">
+                                last:rounded-r-[0.6rem] last:border-r dark:bg-darkmode-600 font-black whitespace-normal break-words">
                                 {{ value.group }}
                             </Table.Td>
                             <Table.Td class=" box rounded-l-none rounded-r-none border-x-0 text-center
