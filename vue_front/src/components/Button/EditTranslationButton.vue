@@ -5,12 +5,17 @@ import { Dialog } from "@/components/Base/Headless";
 import {
     FormLabel,
     FormInput,
+    FormTextarea,
     FormCheck,
 } from "@/components/Base/Form";
 import Button from "@/components/Base/Button";
 import { useVuelidate } from "@vuelidate/core";
-import { required, minLength, numeric, maxLength } from "@vuelidate/validators";
+import { required, minLength } from "@vuelidate/validators";
 import { toastify } from "@/utils/toast";
+import { updateTranslation } from "@/http/translations";
+import { useTranslationsStore } from "@/stores/tranlations";
+
+const translationsStore = useTranslationsStore();
 
 const addPersonModalPreview = ref(false);
 const setAddPersonModalPreview = (value: boolean) => {
@@ -18,28 +23,30 @@ const setAddPersonModalPreview = (value: boolean) => {
 };
 
 const props = defineProps<{
-    user: any;
+    translation: any;
     currentPage: number;
 }>();
 
-
 const georgianChars = (value: any) => /^[ა-ჰ\s_-]+$/.test(value);
-
 
 const text = reactive({
     key: "" as any,
-    text_ka: "" as any,
-    text_en: "" as any,
-    text_ru: "" as any,
+    text: {
+        ka: "" as any,
+        en: "" as any,
+        ru: "" as any,
+    },
     group: "" as any,
     active: null as boolean | null,
 });
 
 const rules = {
     key: { required },
-    text_ka: { required, georgianChars, minLength: minLength(2) },
-    text_en: { required, minLength: minLength(2) },
-    text_ru: { required, minLength: minLength(2) },
+    text: {
+        ka: { required, georgianChars, minLength: minLength(2) },
+        en: { required, minLength: minLength(2) },
+        ru: { required, minLength: minLength(2) },
+    },
     group: { required },
     active: { required },
 };
@@ -53,12 +60,15 @@ const handleSubmit = async () => {
         return;
     }
     try {
-        // await updateStaff(person);
+        await updateTranslation(props.translation.id, text).then(() => {
+            translationsStore.fetchTranslations(props.currentPage);
+        });
         setAddPersonModalPreview(false);
         clickToNull();
-        toastify.success("პიროვნება წარმატებით შეიცვალა");
+        toastify.success("ტექსტი წარმატებით შეიცვალა");
+
     } catch (error) {
-        toastify.error("პიროვნების დამატებისას მოხდა შეცდომა");
+        toastify.error("ტექსტის რედაქტირებისას მოხდა შეცდომა");
         console.error("Error saving data:", error);
     }
 };
@@ -72,6 +82,10 @@ const clickToNull = () => {
             text[key as keyof typeof text] === null
         ) {
             text[key as keyof typeof text] = null as any;
+        } else if (typeof text[key as keyof typeof text] === "object") {
+            Object.keys(text[key as keyof typeof text]).forEach((subKey) => {
+                text[key as keyof typeof text][subKey] = "" as string;
+            });
         }
     });
 
@@ -79,14 +93,15 @@ const clickToNull = () => {
 };
 
 const updatePerson = () => {
-    Object.keys(text).forEach((key) => {
-        if (text.hasOwnProperty(key)) {
-            text[key as keyof typeof text] =
-                props.user[key as keyof typeof text];
-        }
-    });
+    text.key = props.translation.key || "";
+    text.group = props.translation.group || "";
+    text.active = props.translation.active;
+    text.text.ka = props.translation.text_ka || "";
+    text.text.en = props.translation.text_en || "";
+    text.text.ru = props.translation.text_ru || "";
 };
 </script>
+
 <template>
     <div>
         <a class="flex items-center mr-3 text-violet-700 cursor-pointer" @click="(event: MouseEvent) => {
@@ -104,7 +119,7 @@ const updatePerson = () => {
                 clickToNull();
             }
         ">
-            <Dialog.Panel class="p-2 text-center">
+            <Dialog.Panel class="p-2">
 
                 <Dialog.Title>
                     <h2 class="mr-auto text-base font-medium">რედაქტირება</h2>
@@ -119,7 +134,7 @@ const updatePerson = () => {
                 <Dialog.Description class="grid grid-cols-12 gap-4 gap-y-3 dialog-body">
                     <div class="col-span-12 mt-3">
                         <div class="grid grid-cols-12 gap-4 gap-y-3 mt-2">
-                            <div class="col-span-5">
+                            <div class="col-span-12 sm:col-span-6">
                                 <FormLabel htmlFor="modal-form-1" :class="v$.key.$error ? 'text-danger' : ''">
                                     სახელი</FormLabel>
                                 <FormInput id="modal-form-1" type="text" :class="v$.key.$error ? 'border-danger' : ''"
@@ -133,46 +148,49 @@ const updatePerson = () => {
                                     v-model="text.group" placeholder="ჯგუფი" />
                             </div>
                             <div class="col-span-12 sm:col-span-6">
-                                <FormLabel htmlFor="modal-form-2" :class="v$.text_ka.$error ? 'text-danger' : ''">
+                                <FormLabel htmlFor="modal-form-2" :class="v$.text.ka.$error ? 'text-danger' : ''">
                                     ტექსტი ქართულად</FormLabel>
-                                <FormInput id="modal-form-2" type="text"
-                                    :class="v$.text_ka.$error ? 'border-danger' : ''" placeholder="ტექსტი ქართულად"
-                                    v-model="text.text_ka" />
+                                <FormTextarea id="modal-form-2" type="text"
+                                    :class="v$.text.ka.$error ? 'border-danger' : ''" placeholder="ტექსტი ქართულად"
+                                    v-model="text.text.ka" />
                             </div>
-                            <div class="col-span-5">
-                                <FormLabel htmlFor="modal-form-3" :class="v$.text_en.$error ? 'text-danger' : ''">
+                            <div class="col-span-12 sm:col-span-6">
+                                <FormLabel htmlFor="modal-form-3" :class="v$.text.en.$error ? 'text-danger' : ''">
                                     ტექსტი ინგლისურად</FormLabel>
-                                <FormInput id="modal-form-3" type="text" v-model="text.text_en"
-                                    :class="v$.text_en.$error ? 'border-danger' : ''" placeholder="ტექსტი ინგლისურად" />
+                                <FormTextarea id="modal-form-3" type="text" v-model="text.text.en"
+                                    :class="v$.text.en.$error ? 'border-danger' : ''" placeholder="ტექსტი ინგლისურად" />
                             </div>
 
                             <div class="col-span-12 sm:col-span-6">
-                                <FormLabel htmlFor="modal-form-4" :class="v$.text_ru.$error ? 'text-danger' : ''">
+                                <FormLabel htmlFor="modal-form-4" :class="v$.text.ru.$error ? 'text-danger' : ''">
                                     ტექსტი რუსულად
                                 </FormLabel>
-                                <FormInput id="modal-form-4" type="text"
-                                    :class="v$.text_ru.$error ? 'border-danger' : ''" v-model="text.text_ru"
+                                <FormTextarea id="modal-form-4" type="text"
+                                    :class="v$.text.ru.$error ? 'border-danger' : ''" v-model="text.text.ru"
                                     placeholder="ტექსტი რუსულად" />
                             </div>
 
-                            <div class="flex flex-col mt-2 sm:flex-row">
+                            <div class="col-span-12 sm:col-span-6">
                                 <FormLabel htmlFor="modal-form-4" :class="v$.active.$error ? 'text-danger' : ''">
                                     აქტიურია
                                 </FormLabel>
-                                <FormCheck class="mr-5">
-                                    <FormCheck.Input id="gender_id_1" type="radio" v-model="text.active"
-                                        name="gender_id" :value="1" />
-                                    <FormCheck.Label htmlFor="gender_id_1">
-                                        კი
-                                    </FormCheck.Label>
-                                </FormCheck>
-                                <FormCheck class="mt-2 sm:mt-0">
-                                    <FormCheck.Input id="gender_id_2" type="radio" v-model="text.active"
-                                        name="gender_id" :value="0" />
-                                    <FormCheck.Label htmlFor="gender_id_2">
-                                        არა
-                                    </FormCheck.Label>
-                                </FormCheck>
+                                <div class="flex items-center">
+                                    <FormCheck class="mr-5">
+                                        <FormCheck.Input id="gender_id_1" type="radio" v-model="text.active"
+                                            name="gender_id" :value="1" />
+                                        <FormCheck.Label htmlFor="gender_id_1">
+                                            კი
+                                        </FormCheck.Label>
+                                    </FormCheck>
+                                    <FormCheck class="mt-2 sm:mt-0">
+                                        <FormCheck.Input id="gender_id_2" type="radio" v-model="text.active"
+                                            name="gender_id" :value="0" />
+                                        <FormCheck.Label htmlFor="gender_id_2">
+                                            არა
+                                        </FormCheck.Label>
+                                    </FormCheck>
+                                </div>
+
                             </div>
 
                         </div>
@@ -195,6 +213,7 @@ const updatePerson = () => {
         </Dialog>
     </div>
 </template>
+
 <style scoped>
 .dialog-body {
     max-height: 70vh;

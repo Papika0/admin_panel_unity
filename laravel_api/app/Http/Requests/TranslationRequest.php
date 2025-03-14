@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class TranslationRequest extends FormRequest
@@ -13,8 +14,14 @@ class TranslationRequest extends FormRequest
 
     public function rules()
     {
+        $translationId = $this->route('id');
+
         return [
-            'key' => 'required|string|unique:translations,key,',
+            'key' => [
+                'required',
+                'string',
+                Rule::unique('translations', 'key')->ignore($translationId),
+            ],
             'text' => 'required|array',
             'text.en' => 'required|string',
             'text.ka' => 'required|string',

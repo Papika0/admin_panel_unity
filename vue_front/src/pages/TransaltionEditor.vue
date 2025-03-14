@@ -89,7 +89,8 @@ onBeforeMount(() => {
 
                             ]">
                                 <div class="flex items-center justify-center">
-                                    <EditTranslationButton :user="value" :currentPage="pagination.current_page" />
+                                    <EditTranslationButton :translation="value"
+                                        :currentPage="pagination.current_page" />
                                 </div>
                             </Table.Td>
                         </Table.Tr>
