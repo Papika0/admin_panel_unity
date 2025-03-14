@@ -13,8 +13,19 @@ class TranslationController extends Controller
     public function getTranslations(Request $request)
     {
         $perPage = $request->input('per_page', 15);
+        $search = $request->input('search', '');
 
-        $data = Translation::paginate($perPage);
+        $query = Translation::query();
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('text->en', 'LIKE', "%$search%")
+                    ->orWhere('text->ka', 'LIKE', "%$search%")
+                    ->orWhere('text->ru', 'LIKE', "%$search%");
+            });
+        }
+
+        $data = $query->paginate($perPage);
         return new TranslationCollection($data);
     }
 

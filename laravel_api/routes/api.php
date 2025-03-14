@@ -31,7 +31,6 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/', 'getTranslations');
         Route::post('/create', 'createTranslation');
         Route::post('/{id}', 'updateTranslation');
-        // Route::post('/{id}', 'deleteTranslation');
         Route::get('/{id}', 'getTranslation');
         Route::get('/group/{group}', 'getTranslationsByGroup');
     });

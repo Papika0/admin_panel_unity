@@ -20,17 +20,14 @@ export const useTranslationsStore = defineStore("TranslationsStore", () => {
     last_page: 2,
   });
   // Action to fetch staff data
-  async function fetchTranslations(page = 1) {
+  async function fetchTranslations(page = 1, search = "") {
     try {
-      await getTranslations(page).then((response) => {
-        console.log("Translations:", response.data);
-
+      await getTranslations(page, search).then((response) => {
         translations.value = response.data.data;
         pagination.value = response.data.meta;
       });
     } catch (error) {
       console.error("Failed to fetch staff:", error);
-      // Handle error appropriately
     }
   }
 
@@ -62,10 +59,11 @@ export const useTranslationsStore = defineStore("TranslationsStore", () => {
     return pages;
   });
 
-  const goToPage = async (page: number) => {
+  const goToPage = async (page: number, search: string) => {
+    console.log(page, search);
     if (page >= 1 && page <= pagination.value.last_page) {
       pagination.value.current_page = page;
-      fetchTranslations(page);
+      fetchTranslations(page, search);
     }
   };
 

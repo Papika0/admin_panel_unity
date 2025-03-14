@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import _ from "lodash";
 import { useTranslationsStore } from "@/stores/tranlations";
-import { onBeforeMount } from "vue";
+import { onBeforeMount, ref } from "vue";
 import { storeToRefs } from "pinia";
+import {
+    FormInput,
+} from "@/components/Base/Form";
+import Button from "@/components/Base/Button";
 import Lucide from "@/components/Base/Lucide";
 import Table from "@/components/Base/Table";
 import Pagination from "@/components/Base/Pagination";
@@ -13,6 +17,17 @@ const translationsStore = useTranslationsStore();
 const { translations, pages, showPaginate, pagination } = storeToRefs(translationsStore);
 const { goToPage } = translationsStore;
 
+const searchQuery = ref("");
+
+const searchTranslations = () => {
+    translationsStore.fetchTranslations(1, searchQuery.value);
+};
+
+const clearSearch = () => {
+    searchQuery.value = "";
+    translationsStore.fetchTranslations();
+};
+
 onBeforeMount(() => {
     translationsStore.fetchTranslations();
 });
@@ -21,8 +36,28 @@ onBeforeMount(() => {
 <template>
     <div class="grid grid-cols-12 gap-6">
         <div class="col-span-12 mt-8">
-            <div class="flex items-center h-10 intro-y justify-between">
+            <div class="flex items-center h-10 justify-between">
+                <!-- Title -->
                 <h2 class="mr-5 text-lg font-medium truncate">გამოყენებული ტექსტები</h2>
+                <!-- Search Bar -->
+                <div class="flex items-center space-x-2">
+                    <div class="relative">
+                        <FormInput type="text" v-model="searchQuery" class="w-56 pr-10" placeholder="მოძებნე ტექსტი" />
+                        <button v-if="searchQuery" @click="clearSearch"
+                            class="absolute inset-y-0 right-0 flex items-center pr-3">
+                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <Button variant="primary" class="rounded-xl flex" @click="searchTranslations">
+                        <Lucide icon="Search" class="w-4 h-4 mr-2 " /> ძიება
+                    </Button>
+                </div>
+
+                <!-- Additional Button -->
                 <AddTranslationButton />
             </div>
 
@@ -106,25 +141,25 @@ onBeforeMount(() => {
             <!-- BEGIN: Pagination -->
             <div class="flex flex-wrap items-center col-span-12 intro-y sm:flex-row sm:flex-nowrap">
                 <Pagination class="w-full sm:w-auto sm:mr-auto" v-if="showPaginate">
-                    <Pagination.Link @click="goToPage(1)" :disabled="pagination.current_page === 1">
+                    <Pagination.Link @click="goToPage(1, searchQuery)" :disabled="pagination.current_page === 1">
                         <Lucide icon="ChevronsLeft" class="w-4 h-4" />
                     </Pagination.Link>
-                    <Pagination.Link @click="goToPage(pagination.current_page - 1)"
+                    <Pagination.Link @click="goToPage(pagination.current_page - 1, searchQuery)"
                         :disabled="pagination.current_page === 1">
                         <Lucide icon="ChevronLeft" class="w-4 h-4" />
                     </Pagination.Link>
                     <Pagination.Link v-if="pagination.current_page > 2">...</Pagination.Link>
-                    <Pagination.Link v-for="page in pages" :key="page" @click="goToPage(page)"
+                    <Pagination.Link v-for="page in pages" :key="page" @click="goToPage(page, searchQuery)"
                         :class="{ 'paginate-active-class': page === pagination.current_page }">
                         <!-- :active="page === pagination.current_page" -->
                         {{ page }}
                     </Pagination.Link>
                     <Pagination.Link v-if="pagination.current_page < pagination.last_page - 1">...</Pagination.Link>
-                    <Pagination.Link @click="goToPage(pagination.current_page + 1)"
+                    <Pagination.Link @click="goToPage(pagination.current_page + 1, searchQuery)"
                         :disabled="pagination.current_page === pagination.last_page">
                         <Lucide icon="ChevronRight" class="w-4 h-4" />
                     </Pagination.Link>
-                    <Pagination.Link @click="goToPage(pagination.last_page)"
+                    <Pagination.Link @click="goToPage(pagination.last_page, searchQuery)"
                         :disabled="pagination.current_page === pagination.last_page">
                         <Lucide icon="ChevronsRight" class="w-4 h-4" />
                     </Pagination.Link>
