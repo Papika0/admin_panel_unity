@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\ProjectsController;
 use App\Http\Controllers\TranslationController;
 
 
@@ -34,4 +35,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/{id}', 'getTranslation');
         Route::get('/group/{group}', 'getTranslationsByGroup');
     });
+
+    Route::apiResource('projects', ProjectsController::class)
+    ->only(['index', 'show', 'store', 'update']);
 });

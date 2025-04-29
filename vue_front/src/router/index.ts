@@ -41,6 +41,15 @@ const routes: Array<RouteRecordRaw & { meta: RouteMeta }> = [
       },
 
       {
+        path: "projects",
+        name: "projects",
+        meta: {
+          breadcrumb: [{ label: "პროექტები", path: "projects" }],
+        },
+        component: () => import("../pages/Projects.vue"),
+      },
+
+      {
         path: ":pathMatch(.*)*",
         name: "auth-not-found",
         meta: {},

@@ -8,26 +8,26 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Projects extends Model
 {
-    use HasFactory;
-    use HasTranslations;
-
-
-    protected $fillable = [
-        'title','description','location', 'status', 'start_date', 'completion_date',
-        'main_image', 'gallery_images', 'render_image',
-        'architect_name', 'year', 'is_active', 'is_featured',
-        'latitude', 'longitude', 'meta_title', 'meta_description',
-    ];
+    use HasFactory, HasTranslations;
 
     public $translatable = [
-        'title', 'description'
+        'title',
+        'description',
+        'location',       // ← add here
+    ];
+
+    protected $fillable = [
+        'title','description','location', 'status','start_date','completion_date',
+        'main_image','gallery_images','render_image',
+        'architect_name','year','is_active','is_featured',
+        'latitude','longitude','meta_title','meta_description',
     ];
 
     protected $casts = [
-        'gallery_images' => 'array',
-        'start_date' => 'date',
+        'gallery_images'  => 'array',
+        'start_date'      => 'date',
         'completion_date' => 'date',
-        'latitude' => 'decimal:7',
-        'longitude' => 'decimal:7',
+        'latitude'        => 'decimal:7',
+        'longitude'       => 'decimal:7',
     ];
 }

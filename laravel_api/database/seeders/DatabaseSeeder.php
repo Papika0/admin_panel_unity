@@ -15,6 +15,11 @@ class DatabaseSeeder extends Seeder
     {
         \App\Models\User::factory(3)->create();
 
+        \App\Models\User::factory()->create([
+            'name' => 'Test User',
+            'email' => '1@gmail.com',
+        ]);
+
         $this->call(RoleSeeder::class);
         $this->call(TranslationSeeder::class);
         Projects::factory()->count(6)->create();

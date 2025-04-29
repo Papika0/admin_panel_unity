@@ -11,6 +11,11 @@ const menu: Array<Menu | "divider"> = [
     pageName: "translations-editor",
     title: "ტექსტები",
   },
+  {
+    icon: "LayersIcon",
+    pageName: "projects",
+    title: "პროექტები",
+  },
 ];
 
 export default menu;

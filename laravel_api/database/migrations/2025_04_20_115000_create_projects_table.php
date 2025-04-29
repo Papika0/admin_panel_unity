@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('projects', function (Blueprint $table) {
@@ -17,8 +14,8 @@ return new class extends Migration
             $table->boolean('is_featured')->default(false);
             $table->json('title');
             $table->json('description');
-            $table->string('location');
-            $table->enum('status', ['planning','ongoing', 'completed'])->default('ongoing');
+            $table->json('location');                          // ← was string, now JSON
+            $table->enum('status', ['planning','ongoing','completed'])->default('ongoing');
             $table->date('start_date')->nullable();
             $table->date('completion_date')->nullable();
             $table->string('main_image');
@@ -34,9 +31,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('projects');
