@@ -13,13 +13,13 @@ class Projects extends Model
     public $translatable = [
         'title',
         'description',
-        'location',       // ← add here
+        'location',      
     ];
 
     protected $fillable = [
         'title','description','location', 'status','start_date','completion_date',
         'main_image','gallery_images','render_image',
-        'architect_name','year','is_active','is_featured',
+       'year','is_active','is_featured',
         'latitude','longitude','meta_title','meta_description',
     ];
 

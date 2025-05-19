@@ -19,7 +19,7 @@ class ProjectsFactory extends Factory
         $end         = $this->faker->dateTimeBetween($start, '+1 year');
         $mainSeed    = $this->faker->unique()->uuid;
         $renderSeed  = $this->faker->unique()->uuid;
-        $gallerySeeds= [$this->faker->unique()->uuid, $this->faker->unique()->uuid, $this->faker->unique()->uuid];
+        $gallerySeeds= [$this->faker->unique()->uuid, $this->faker->unique()->uuid, $this->faker->unique()->uuid,$this->faker->unique()->uuid,$this->faker->unique()->uuid,$this->faker->unique()->uuid,$this->faker->unique()->uuid,$this->faker->unique()->uuid,$this->faker->unique()->uuid,];
 
         return [
             'title'           => [
@@ -47,9 +47,14 @@ class ProjectsFactory extends Factory
                 "https://picsum.photos/seed/{$gallerySeeds[0]}/400/300",
                 "https://picsum.photos/seed/{$gallerySeeds[1]}/400/300",
                 "https://picsum.photos/seed/{$gallerySeeds[2]}/400/300",
+                "https://picsum.photos/seed/{$gallerySeeds[3]}/400/300",
+                "https://picsum.photos/seed/{$gallerySeeds[4]}/400/300",
+                "https://picsum.photos/seed/{$gallerySeeds[5]}/400/300",
+                "https://picsum.photos/seed/{$gallerySeeds[6]}/400/300",
+                "https://picsum.photos/seed/{$gallerySeeds[7]}/400/300",
+                "https://picsum.photos/seed/{$gallerySeeds[8]}/400/300",
             ],
 
-            'architect_name'  => $this->faker->name,
             'year'            => $this->faker->year,
             'is_active'       => $this->faker->boolean(80),
             'is_featured'     => $this->faker->boolean(30),

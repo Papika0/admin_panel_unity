@@ -1,6 +1,7 @@
 import { storeToRefs } from "pinia";
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import Layout from "@/themes";
+import ProjectDetails from "@/pages/ProjectDetails.vue";
 import _ from "lodash";
 import { useAuthStore } from "@/stores/auth";
 
@@ -47,6 +48,33 @@ const routes: Array<RouteRecordRaw & { meta: RouteMeta }> = [
           breadcrumb: [{ label: "პროექტები", path: "projects" }],
         },
         component: () => import("../pages/Projects.vue"),
+      },
+
+      {
+        path: "/projects/:id",
+        name: "ProjectDetail",
+        component: ProjectDetails,
+        meta: {
+          breadcrumb: [
+            { label: "პროექტები", path: "projects" },
+            { label: "პროექტის დეტალები", path: "/projects/:id" },
+          ],
+        },
+        props: true, // so that route.params.id becomes a prop
+      },
+
+      {
+        path: "projects/:id/edit",
+        name: "ProjectEdit",
+        component: () => import("@/pages/ProjectEdit.vue"),
+        props: true,
+        meta: {
+          breadcrumb: [
+            { label: "პროექტები", path: "projects" },
+            { label: "პროექტის დეტალები", path: "/projects/:id" },
+            { label: "რედაქტირება", path: "/projects/:id/edit" },
+          ],
+        },
       },
 
       {

@@ -17,13 +17,23 @@ class ProjectResource extends JsonResource
         return [
             'id'               => $this->id,
             'title'            => $this->getTranslation('title', 'ka'),
+            'title_en'         => $this->getTranslation('title', 'en'),
+            'title_ru'         => $this->getTranslation('title', 'ru'),
+            'title_ka'         => $this->getTranslation('title', 'ka'),
             'description'      => $this->getTranslation('description', 'ka'),
+            'description_en'   => $this->getTranslation('description', 'en'),
+            'description_ru'   => $this->getTranslation('description', 'ru'),
+            'description_ka'   => $this->getTranslation('description', 'ka'),
+            'location_en'      => $this->getTranslation('location', 'en'),
+            'location_ru'      => $this->getTranslation('location', 'ru'),
+            'location_ka'      => $this->getTranslation('location', 'ka'),
             'location'         => $this->getTranslation('location', 'ka'),
-           'status'           => trans(
+           'status_name'           => trans(
                                      'projects.statuses.' . $this->status,
                                      [], 
                                      'ka'
                                   ),
+            'status'            => $this->status,
             'start_date'       => $this->start_date->toDateString(),
             'completion_date'  => $this->completion_date->toDateString(),
             'main_image'       => $this->main_image,

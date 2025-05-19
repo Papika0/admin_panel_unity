@@ -30,7 +30,7 @@ class ProjectsController extends Controller
     {
         try {
             $project = Projects::findOrFail($id);
-            return $this->success($project);
+            return $this->success(new ProjectResource($project));
         } catch (\Exception $e) {
             return $this->error('Project not found', 404);
         }
@@ -47,13 +47,34 @@ class ProjectsController extends Controller
     }
 
     public function update(UpdateProjectsRequest $request, $id)
-    {
-        try {
-            $project = Projects::findOrFail($id);
-            $project->update($request->validated());
-            return $this->success($project, 'Project updated');
-        } catch (\Exception $e) {
-            return $this->error('Failed to update project', 500);
+{
+    try {
+        $project = Projects::findOrFail($id);
+        $data    = $request->validated();
+
+        // handle single images
+        if ($request->hasFile('main_image')) {
+            $data['main_image'] = $request->file('main_image')
+                                        ->store('projects/main', 'public');
         }
+        if ($request->hasFile('render_image')) {
+            $data['render_image'] = $request->file('render_image')
+                                          ->store('projects/renders', 'public');
+        }
+
+        // handle gallery
+        if ($request->hasFile('gallery_images')) {
+            $paths = [];
+            foreach ($request->file('gallery_images') as $file) {
+                $paths[] = $file->store('projects/gallery', 'public');
+            }
+            $data['gallery_images'] = $paths;
+        }
+
+        $project->update($data);
+        return $this->success(new ProjectResource($project), 'Project updated');
+    } catch (\Exception $e) {
+        return $this->error('Failed to update project', 500);
     }
+}
 }

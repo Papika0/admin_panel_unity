@@ -21,7 +21,6 @@ return new class extends Migration
             $table->string('main_image');
             $table->string('render_image');
             $table->json('gallery_images')->nullable();
-            $table->string('architect_name')->nullable();
             $table->year('year');
             $table->decimal('latitude', 10, 7)->nullable();
             $table->decimal('longitude', 10, 7)->nullable();
