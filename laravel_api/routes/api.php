@@ -36,6 +36,10 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/group/{group}', 'getTranslationsByGroup');
     });
 
-    Route::apiResource('projects', ProjectsController::class)
-    ->only(['index', 'show', 'store', 'update']);
+    Route::prefix('projects')->controller(ProjectsController::class)->group(function () {
+        Route::get('/',   'index');
+        Route::get('/{id}','show');
+        Route::post('/',  'store');
+        Route::put('/{id}','update');
+    });
 });

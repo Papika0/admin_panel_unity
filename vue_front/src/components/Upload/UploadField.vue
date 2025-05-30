@@ -46,9 +46,9 @@ function onDrop(e: DragEvent) {
 }
 
 function handleFile(file: File) {
-  emit("update:modelValue", file);
+  emit("update:modelValue", file); // Emit the file object
   const reader = new FileReader();
-  reader.onload = () => emit("update:preview", reader.result as string);
+  reader.onload = () => emit("update:preview", reader.result as string); // Emit the preview URL
   reader.readAsDataURL(file);
 }
 </script>

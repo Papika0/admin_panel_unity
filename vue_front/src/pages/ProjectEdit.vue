@@ -62,18 +62,21 @@ async function load() {
   form.is_active = p.is_active;
   form.is_featured = p.is_featured;
 
-  // Image previews
   previews.main_image = p.main_image;
+  form.main_image = null;
+
   previews.render_image = p.render_image;
+  form.render_image = null;
+
   previews.gallery_images = p.gallery_images;
+  form.gallery_images = []; // clear old preview paths
 }
 
 async function onSubmit() {
   submitting.value = true;
   const data = new FormData();
 
-  data.append("_method", "PUT");
-
+  data.append("_method", "PUT"); // Or "PATCH"
   // 1) Build the nested arrays one field at a time:
   for (const lang of langs) {
     data.append(`title[${lang}]`, form.title[lang]);
@@ -92,12 +95,22 @@ async function onSubmit() {
   // 3) Files
   if (form.main_image instanceof File) {
     data.append("main_image", form.main_image);
+  } else {
+    console.warn("Main image is not a valid file.");
   }
+
   if (form.render_image instanceof File) {
     data.append("render_image", form.render_image);
+  } else {
+    console.warn("Render image is not a valid file.");
   }
+
   form.gallery_images.forEach((file, i) => {
-    data.append(`gallery_images[${i}]`, file);
+    if (file instanceof File) {
+      data.append(`gallery_images[${i}]`, file);
+    } else {
+      console.warn(`Gallery image at index ${i} is not a valid file.`);
+    }
   });
 
   try {
@@ -256,10 +269,8 @@ onMounted(load);
         <h2 class="font-semibold mb-2">Main Image</h2>
         <UploadField
           v-model="form.main_image"
-          :preview="
-            previews.main_image ? `/storage/${previews.main_image}` : null
-          "
-          …
+          :preview="previews.main_image ? `${previews.main_image}` : null"
+          @update:preview="(p) => (previews.main_image = p)"
         />
       </div>
 
