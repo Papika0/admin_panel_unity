@@ -45,6 +45,7 @@ const emit = defineEmits<{
 }>();
 
 const fileInput = ref<HTMLInputElement>();
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 function onFileChange(e: Event) {
   const files = Array.from((e.target as HTMLInputElement).files || []);

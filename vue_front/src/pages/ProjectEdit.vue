@@ -4,6 +4,7 @@ import { useRoute, useRouter } from "vue-router";
 import { getProject, updateProject } from "@/http/projects";
 import UploadField from "@/components/Upload/UploadField.vue";
 import GalleryUpload from "@/components/Upload/GalleryUpload.vue";
+import { compressFileIfNeeded } from "@/utils/imageCompression";
 
 const langs = ["en", "ka", "ru"];
 const route = useRoute();
@@ -11,6 +12,7 @@ const router = useRouter();
 const id = Number(route.params.id);
 
 const submitting = ref(false);
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const form = reactive({
   title: { en: "", ka: "", ru: "" },
@@ -62,10 +64,10 @@ async function load() {
   form.is_active = p.is_active;
   form.is_featured = p.is_featured;
 
-  previews.main_image = p.main_image;
+  previews.main_image = backendUrl + p.main_image;
   form.main_image = null;
 
-  previews.render_image = p.render_image;
+  previews.render_image = backendUrl + p.render_image;
   form.render_image = null;
 
   previews.gallery_images = p.gallery_images;
@@ -76,7 +78,8 @@ async function onSubmit() {
   submitting.value = true;
   const data = new FormData();
 
-  data.append("_method", "PUT"); // Or "PATCH"
+  data.append("_method", "PUT");
+
   // 1) Build the nested arrays one field at a time:
   for (const lang of langs) {
     data.append(`title[${lang}]`, form.title[lang]);
@@ -92,34 +95,71 @@ async function onSubmit() {
   data.append("is_active", form.is_active ? "1" : "0");
   data.append("is_featured", form.is_featured ? "1" : "0");
 
-  // 3) Files
-  if (form.main_image instanceof File) {
-    data.append("main_image", form.main_image);
-  } else {
-    console.warn("Main image is not a valid file.");
-  }
-
-  if (form.render_image instanceof File) {
-    data.append("render_image", form.render_image);
-  } else {
-    console.warn("Render image is not a valid file.");
-  }
-
-  form.gallery_images.forEach((file, i) => {
-    if (file instanceof File) {
-      data.append(`gallery_images[${i}]`, file);
-    } else {
-      console.warn(`Gallery image at index ${i} is not a valid file.`);
-    }
-  });
-
+  // 3) Compress and append files with better error handling
   try {
+    if (form.main_image instanceof File) {
+      console.log("Original main image size:", form.main_image.size);
+      const compressedMainImage = await compressFileIfNeeded(form.main_image);
+      if (compressedMainImage) {
+        console.log("Compressed main image size:", compressedMainImage.size);
+        data.append("main_image", compressedMainImage);
+      } else {
+        console.error("Main image compression returned null");
+      }
+    }
+
+    if (form.render_image instanceof File) {
+      console.log("Original render image size:", form.render_image.size);
+      const compressedRenderImage = await compressFileIfNeeded(form.render_image);
+      if (compressedRenderImage) {
+        console.log("Compressed render image size:", compressedRenderImage.size);
+        data.append("render_image", compressedRenderImage);
+      } else {
+        console.error("Render image compression returned null");
+      }
+    }
+
+    // Compress gallery images with sequential processing
+    const galleryFiles = [];
+    for (let i = 0; i < form.gallery_images.length; i++) {
+      const file = form.gallery_images[i];
+      if (file instanceof File) {
+        console.log(`Original gallery image ${i} size:`, file.size);
+        const compressedGalleryImage = await compressFileIfNeeded(file);
+        if (compressedGalleryImage) {
+          console.log(`Compressed gallery image ${i} size:`, compressedGalleryImage.size);
+          galleryFiles.push(compressedGalleryImage);
+        } else {
+          console.error(`Gallery image ${i} compression returned null`);
+          galleryFiles.push(file); // Use original if compression fails
+        }
+      }
+    }
+
+    // Append gallery files
+    galleryFiles.forEach((file, i) => {
+      data.append(`gallery_images[${i}]`, file);
+    });
+
+    // Log FormData contents for debugging
+    console.log("FormData contents:");
+    for (let pair of data.entries()) {
+      if (pair[1] instanceof File) {
+        console.log(pair[0], "File:", pair[1].name, "Size:", pair[1].size, "Type:", pair[1].type);
+      } else {
+        console.log(pair[0], pair[1]);
+      }
+    }
+
     const res = await updateProject(id, data);
     if (res.status === 200) {
       router.push({ name: "ProjectDetail", params: { id } });
     }
   } catch (err) {
     console.error("Update failed", err);
+    if (err.response?.data?.errors) {
+      console.error("Server validation errors:", err.response.data.errors);
+    }
   } finally {
     submitting.value = false;
   }

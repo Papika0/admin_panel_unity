@@ -23,7 +23,7 @@
     <div v-if="project" class="bg-white shadow rounded-lg overflow-hidden">
       <!-- Main Hero Image -->
       <img
-        :src="project.main_image"
+        :src="backendUrl + project.main_image"
         alt="Main Project Image"
         class="w-full h-64 object-cover"
       />
@@ -72,7 +72,7 @@
         <div class="mb-8">
           <h2 class="text-2xl font-semibold mb-4">რენდერი</h2>
           <img
-            :src="project.render_image"
+            :src="backendUrl + project.render_image"
             alt="Render Image"
             class="w-full h-64 object-cover rounded"
           />
@@ -98,7 +98,7 @@
               class="flex items-center justify-center transform transition-transform duration-300 hover:scale-105"
             >
               <img
-                :src="img"
+                :src="backendUrl + img"
                 alt="Gallery Image"
                 class="object-cover w-full h-60 rounded-xl shadow-lg"
               />
@@ -140,6 +140,8 @@ async function fetchProject() {
 }
 
 onMounted(fetchProject);
+
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 function formatDate(dateStr) {
   const dt = new Date(dateStr);
