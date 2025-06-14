@@ -76,9 +76,15 @@ class ProjectsController extends Controller
 
         if ($request->hasFile('gallery_images')) {
             // Get existing gallery images if any
-            $existingGallery = $project->gallery_images ? json_decode($project->gallery_images, true) : [];
-            if (!is_array($existingGallery)) {
-                $existingGallery = [];
+            $existingGallery = [];
+            if ($project->gallery_images) {
+                // Check if it's already an array or a JSON string
+                if (is_array($project->gallery_images)) {
+                    $existingGallery = $project->gallery_images;
+                } else {
+                    $decoded = json_decode($project->gallery_images, true);
+                    $existingGallery = is_array($decoded) ? $decoded : [];
+                }
             }
             
             // Delete all existing gallery images
@@ -92,11 +98,11 @@ class ProjectsController extends Controller
             $paths = [];
             foreach ($request->file('gallery_images') as $file) {
                 $path = $file->store('projects/gallery', 'public');
-                $paths[] = $path;
+                $paths[] = '/storage/' . $path;
             }
             
-            // Store paths as JSON
-            $data['gallery_images'] = json_encode($paths);
+            // Store paths as array instead of JSON
+            $data['gallery_images'] = $paths;
         }
 
         $project->update($data);

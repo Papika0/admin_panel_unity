@@ -1,3 +1,61 @@
+<script setup>
+import { ref, onMounted, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { getProject } from "@/http/projects";
+
+// Swiper components & modules
+import { Swiper, SwiperSlide } from "swiper/vue";
+import { Navigation, Pagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+
+const project = ref(null);
+const route = useRoute();
+const router = useRouter();
+
+async function fetchProject() {
+  try {
+    const res = await getProject(Number(route.params.id));
+    if (res.status === 200) {
+      project.value = res.data.data;
+    }
+  } catch (e) {
+    console.error("Failed to load project:", e);
+  }
+}
+
+onMounted(fetchProject);
+
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+function formatDate(dateStr) {
+  const dt = new Date(dateStr);
+  const months = [
+    "იანვარი",
+    "თებერვალი",
+    "მარტი",
+    "აპრილი",
+    "მაისი",
+    "ივნისი",
+    "ივლისი",
+    "აგვისტო",
+    "სექტემბერი",
+    "ოქტომბერი",
+    "ნოემბერი",
+    "დეკემბერი",
+  ];
+  return `${dt.getDate()} ${months[dt.getMonth()]} ${dt.getFullYear()}`;
+}
+
+const slidesPerView = computed(() => {
+  const w = window.innerWidth;
+  if (w < 640) return 1;
+  if (w < 1024) return 2;
+  return 3;
+});
+</script>
+
 <template>
   <div class="container mx-auto p-6">
     <div class="flex items-center justify-between mb-4">
@@ -111,64 +169,6 @@
     <p v-else class="text-center text-gray-500">იტვირთება…</p>
   </div>
 </template>
-
-<script setup>
-import { ref, onMounted, computed } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { getProject } from "@/http/projects";
-
-// Swiper components & modules
-import { Swiper, SwiperSlide } from "swiper/vue";
-import { Navigation, Pagination } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
-
-const project = ref(null);
-const route = useRoute();
-const router = useRouter();
-
-async function fetchProject() {
-  try {
-    const res = await getProject(Number(route.params.id));
-    if (res.status === 200) {
-      project.value = res.data.data;
-    }
-  } catch (e) {
-    console.error("Failed to load project:", e);
-  }
-}
-
-onMounted(fetchProject);
-
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
-function formatDate(dateStr) {
-  const dt = new Date(dateStr);
-  const months = [
-    "იანვარი",
-    "თებერვალი",
-    "მარტი",
-    "აპრილი",
-    "მაისი",
-    "ივნისი",
-    "ივლისი",
-    "აგვისტო",
-    "სექტემბერი",
-    "ოქტომბერი",
-    "ნოემბერი",
-    "დეკემბერი",
-  ];
-  return `${dt.getDate()} ${months[dt.getMonth()]} ${dt.getFullYear()}`;
-}
-
-const slidesPerView = computed(() => {
-  const w = window.innerWidth;
-  if (w < 640) return 1;
-  if (w < 1024) return 2;
-  return 3;
-});
-</script>
 
 <style scoped>
 .container {

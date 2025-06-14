@@ -1,35 +1,3 @@
-<template>
-  <div class="space-y-2">
-    <div
-      class="border-2 border-dashed rounded p-4 text-center cursor-pointer"
-      @dragover.prevent
-      @drop.prevent="onDrop"
-      @click="fileInput?.click()"
-    >
-      <input
-        type="file"
-        accept="image/*"
-        multiple
-        class="hidden"
-        ref="fileInput"
-        @change="onFileChange"
-      />
-      <p class="text-gray-500">Drag & drop or click to add gallery images</p>
-    </div>
-    <div class="grid grid-cols-3 gap-4">
-      <div v-for="(img, idx) in previews" :key="idx" class="relative group">
-        <img :src="img" class="object-cover w-full h-24 rounded shadow" />
-        <button
-          @click="remove(idx)"
-          class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
-        >
-          ✕
-        </button>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { ref, defineEmits, defineProps } from "vue";
 
@@ -59,14 +27,22 @@ function onDrop(e: DragEvent) {
 
 function addFiles(files: File[]) {
   const newPreviews = [...props.previews];
-  const newFiles = [...props.modelValue];
+  const newFiles = [...props.modelValue, ...files];
+
+  let loadedCount = 0;
+  const totalFiles = files.length;
+
   files.forEach((file) => {
-    newFiles.push(file);
     const reader = new FileReader();
     reader.onload = () => {
       newPreviews.push(reader.result as string);
-      emit("update:previews", newPreviews);
-      emit("update:modelValue", newFiles);
+      loadedCount++;
+
+      // Only emit when all files are loaded
+      if (loadedCount === totalFiles) {
+        emit("update:previews", newPreviews);
+        emit("update:modelValue", newFiles);
+      }
     };
     reader.readAsDataURL(file);
   });
@@ -81,3 +57,39 @@ function remove(idx: number) {
   emit("update:modelValue", newFiles);
 }
 </script>
+
+<template>
+  <div class="space-y-2">
+    <div
+      class="border-2 border-dashed rounded p-4 text-center cursor-pointer"
+      @dragover.prevent
+      @drop.prevent="onDrop"
+      @click="fileInput?.click()"
+    >
+      <input
+        type="file"
+        accept="image/*"
+        multiple
+        class="hidden"
+        ref="fileInput"
+        @change="onFileChange"
+      />
+      <p class="text-gray-500">Drag & drop or click to add gallery images</p>
+    </div>
+    <div class="grid grid-cols-3 gap-4">
+      <div v-for="(img, idx) in previews" :key="idx" class="relative group">
+        <img
+          :src="img.startsWith('data:') ? img : backendUrl + img"
+          class="object-cover w-full h-24 rounded shadow"
+        />
+        <button
+          type="button"
+          @click="remove(idx)"
+          class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
+        >
+          ✕
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
