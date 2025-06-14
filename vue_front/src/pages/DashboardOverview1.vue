@@ -6,9 +6,6 @@ import Button from "@/components/Base/Button";
 import Lucide from "@/components/Base/Lucide";
 import Tippy from "@/components/Base/Tippy";
 import Litepicker from "@/components/Base/Litepicker";
-import ReportDonutChart from "@/components/ReportDonutChart";
-import ReportLineChart from "@/components/ReportLineChart";
-import ReportPieChart from "@/components/ReportPieChart";
 
 import { Menu } from "@/components/Base/Headless";
 
@@ -22,7 +19,9 @@ const salesReportFilter = ref<string>("");
         <!-- BEGIN: General Report -->
         <div class="col-span-12 mt-8">
           <div class="flex items-center h-10 intro-y">
-            <h2 class="mr-5 text-lg font-medium truncate">ძირითადი ინფორმაცია</h2>
+            <h2 class="mr-5 text-lg font-medium truncate">
+              ძირითადი ინფორმაცია
+            </h2>
             <a href="" class="flex items-center ml-auto text-primary">
               <Lucide icon="RefreshCcw" class="w-4 h-4 mr-3" /> Reload Data
             </a>
@@ -53,7 +52,9 @@ const salesReportFilter = ref<string>("");
                     </div>
                   </div>
                   <div class="mt-6 text-3xl font-medium leading-8">4.710</div>
-                  <div class="mt-1 text-base text-slate-500">სააღწერო უბნები</div>
+                  <div class="mt-1 text-base text-slate-500">
+                    სააღწერო უბნები
+                  </div>
                 </div>
               </div>
             </div>
@@ -82,7 +83,9 @@ const salesReportFilter = ref<string>("");
                     </div>
                   </div>
                   <div class="mt-6 text-3xl font-medium leading-8">3.721</div>
-                  <div class="mt-1 text-base text-slate-500">აღწერილი მოსახლეობა</div>
+                  <div class="mt-1 text-base text-slate-500">
+                    აღწერილი მოსახლეობა
+                  </div>
                 </div>
               </div>
             </div>
@@ -237,9 +240,7 @@ const salesReportFilter = ref<string>("");
             <a href="" class="ml-auto truncate text-primary"> Show More </a>
           </div>
           <div class="p-5 mt-5 intro-y box">
-            <div class="mt-3">
-              <ReportPieChart :height="213" />
-            </div>
+            <div class="mt-3"></div>
             <div class="mx-auto mt-8 w-52 sm:w-auto">
               <div class="flex items-center">
                 <div class="w-2 h-2 mr-3 rounded-full bg-primary"></div>
@@ -267,9 +268,7 @@ const salesReportFilter = ref<string>("");
             <a href="" class="ml-auto truncate text-primary"> Show More </a>
           </div>
           <div class="p-5 mt-5 intro-y box">
-            <div class="mt-3">
-              <ReportDonutChart :height="213" />
-            </div>
+            <div class="mt-3"></div>
             <div class="mx-auto mt-8 w-52 sm:w-auto">
               <div class="flex items-center">
                 <div class="w-2 h-2 mr-3 rounded-full bg-primary"></div>
@@ -290,10 +289,7 @@ const salesReportFilter = ref<string>("");
           </div>
         </div>
         <!-- END: Sales Report -->
-       
-
       </div>
     </div>
-   
   </div>
 </template>
