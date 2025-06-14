@@ -10,6 +10,7 @@ const props = defineProps<Props>();
 const emit = defineEmits<{
   (e: "update:modelValue", v: File[]): void;
   (e: "update:previews", v: string[]): void;
+  (e: "remove:existing", index: number): void; // New event for removing existing images
 }>();
 
 const fileInput = ref<HTMLInputElement>();
@@ -49,10 +50,32 @@ function addFiles(files: File[]) {
 }
 
 function remove(idx: number) {
+  const preview = props.previews[idx];
+
+  // Check if this is an existing image (not a data URL) or a new file
+  if (!preview.startsWith("data:")) {
+    // This is an existing image, emit event to parent to handle removal
+    emit("remove:existing", idx);
+  }
+
   const newPreviews = props.previews.slice();
   const newFiles = props.modelValue.slice();
+
+  // Calculate the index in the files array (existing images don't have corresponding files)
+  let fileIndex = 0;
+  for (let i = 0; i < idx; i++) {
+    if (props.previews[i].startsWith("data:")) {
+      fileIndex++;
+    }
+  }
+
   newPreviews.splice(idx, 1);
-  newFiles.splice(idx, 1);
+
+  // Only remove from files array if it's a new file (data URL preview)
+  if (preview.startsWith("data:")) {
+    newFiles.splice(fileIndex, 1);
+  }
+
   emit("update:previews", newPreviews);
   emit("update:modelValue", newFiles);
 }

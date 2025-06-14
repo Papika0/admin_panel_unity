@@ -27,6 +27,7 @@ const form = reactive({
   main_image: null,
   render_image: null,
   gallery_images: [],
+  existing_gallery_images: [], // Track existing images to keep
 });
 
 const previews = reactive({
@@ -72,6 +73,7 @@ async function load() {
 
   previews.gallery_images = p.gallery_images;
   form.gallery_images = []; // clear old preview paths
+  form.existing_gallery_images = p.gallery_images || []; // Store existing images
 }
 
 async function onSubmit() {
@@ -110,16 +112,26 @@ async function onSubmit() {
 
     if (form.render_image instanceof File) {
       console.log("Original render image size:", form.render_image.size);
-      const compressedRenderImage = await compressFileIfNeeded(form.render_image);
+      const compressedRenderImage = await compressFileIfNeeded(
+        form.render_image
+      );
       if (compressedRenderImage) {
-        console.log("Compressed render image size:", compressedRenderImage.size);
+        console.log(
+          "Compressed render image size:",
+          compressedRenderImage.size
+        );
         data.append("render_image", compressedRenderImage);
       } else {
         console.error("Render image compression returned null");
       }
     }
 
-    // Compress gallery images with sequential processing
+    // Send existing gallery images to keep (those that weren't removed)
+    form.existing_gallery_images.forEach((imagePath, i) => {
+      data.append(`existing_gallery_images[${i}]`, imagePath);
+    });
+
+    // Compress and append new gallery files
     const galleryFiles = [];
     for (let i = 0; i < form.gallery_images.length; i++) {
       const file = form.gallery_images[i];
@@ -127,7 +139,10 @@ async function onSubmit() {
         console.log(`Original gallery image ${i} size:`, file.size);
         const compressedGalleryImage = await compressFileIfNeeded(file);
         if (compressedGalleryImage) {
-          console.log(`Compressed gallery image ${i} size:`, compressedGalleryImage.size);
+          console.log(
+            `Compressed gallery image ${i} size:`,
+            compressedGalleryImage.size
+          );
           galleryFiles.push(compressedGalleryImage);
         } else {
           console.error(`Gallery image ${i} compression returned null`);
@@ -136,7 +151,7 @@ async function onSubmit() {
       }
     }
 
-    // Append gallery files
+    // Append new gallery files
     galleryFiles.forEach((file, i) => {
       data.append(`gallery_images[${i}]`, file);
     });
@@ -145,7 +160,15 @@ async function onSubmit() {
     console.log("FormData contents:");
     for (let pair of data.entries()) {
       if (pair[1] instanceof File) {
-        console.log(pair[0], "File:", pair[1].name, "Size:", pair[1].size, "Type:", pair[1].type);
+        console.log(
+          pair[0],
+          "File:",
+          pair[1].name,
+          "Size:",
+          pair[1].size,
+          "Type:",
+          pair[1].type
+        );
       } else {
         console.log(pair[0], pair[1]);
       }
@@ -162,6 +185,17 @@ async function onSubmit() {
     }
   } finally {
     submitting.value = false;
+  }
+}
+
+function handleRemoveExisting(index) {
+  // Remove from existing_gallery_images array
+  const existingImagePath = previews.gallery_images[index];
+  const existingIndex = form.existing_gallery_images.findIndex(
+    (img) => img === existingImagePath
+  );
+  if (existingIndex !== -1) {
+    form.existing_gallery_images.splice(existingIndex, 1);
   }
 }
 
@@ -331,6 +365,7 @@ onMounted(load);
           v-model="form.gallery_images"
           :previews="previews.gallery_images"
           @update:previews="(p) => (previews.gallery_images = p)"
+          @remove:existing="handleRemoveExisting"
         />
       </div>
 

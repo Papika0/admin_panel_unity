@@ -56,58 +56,68 @@ class ProjectsController extends Controller
 
         if ($request->hasFile('main_image')) {
             // Delete old main image if exists
-            if ($project->main_image && Storage::disk('public')->exists(str_replace('/storage/', '', $project->main_image))) {
-                Storage::disk('public')->delete(str_replace('/storage/', '', $project->main_image));
+            if ($project->main_image && Storage::disk('public')->exists(str_replace('storage/', '', $project->main_image))) {
+                Storage::disk('public')->delete(str_replace('storage/', '', $project->main_image));
             }
             
             $path = $request->file('main_image')->store('projects/main', 'public');
-            $data['main_image'] = '/storage/' . $path;
+            $data['main_image'] = 'storage/' . $path;
         }
 
         if ($request->hasFile('render_image')) {
             // Delete old render image if exists
-            if ($project->render_image && Storage::disk('public')->exists(str_replace('/storage/', '', $project->render_image))) {
-                Storage::disk('public')->delete(str_replace('/storage/', '', $project->render_image));
+            if ($project->render_image && Storage::disk('public')->exists(str_replace('storage/', '', $project->render_image))) {
+                Storage::disk('public')->delete(str_replace('storage/', '', $project->render_image));
             }
             
             $path = $request->file('render_image')->store('projects/render', 'public');
-            $data['render_image'] = '/storage/' . $path;
+            $data['render_image'] = 'storage/' . $path;
         }
 
-        if ($request->hasFile('gallery_images')) {
-            // Get existing gallery images if any
-            $existingGallery = [];
+        // Handle gallery images
+        if ($request->hasFile('gallery_images') || $request->has('existing_gallery_images')) {
+            $finalGalleryImages = [];
+            
+            // Get existing gallery images to keep
+            if ($request->has('existing_gallery_images')) {
+                $existingToKeep = $request->input('existing_gallery_images', []);
+                $finalGalleryImages = array_merge($finalGalleryImages, $existingToKeep);
+            }
+            
+            // Add new gallery images
+            if ($request->hasFile('gallery_images')) {
+                foreach ($request->file('gallery_images') as $file) {
+                    $path = $file->store('projects/gallery', 'public');
+                    $finalGalleryImages[] = 'storage/' . $path;
+                }
+            }
+            
+            // Delete images that are no longer needed
+            $currentGallery = [];
             if ($project->gallery_images) {
-                // Check if it's already an array or a JSON string
                 if (is_array($project->gallery_images)) {
-                    $existingGallery = $project->gallery_images;
+                    $currentGallery = $project->gallery_images;
                 } else {
                     $decoded = json_decode($project->gallery_images, true);
-                    $existingGallery = is_array($decoded) ? $decoded : [];
+                    $currentGallery = is_array($decoded) ? $decoded : [];
                 }
             }
             
-            // Delete all existing gallery images
-            foreach ($existingGallery as $oldImage) {
-                if (Storage::disk('public')->exists($oldImage)) {
-                    Storage::disk('public')->delete($oldImage);
+            // Find images to delete (those not in finalGalleryImages)
+            $imagesToDelete = array_diff($currentGallery, $finalGalleryImages);
+            foreach ($imagesToDelete as $oldImage) {
+                $cleanPath = str_replace('storage/', '', $oldImage);
+                if (Storage::disk('public')->exists($cleanPath)) {
+                    Storage::disk('public')->delete($cleanPath);
                 }
             }
             
-            // Store new gallery images
-            $paths = [];
-            foreach ($request->file('gallery_images') as $file) {
-                $path = $file->store('projects/gallery', 'public');
-                $paths[] = '/storage/' . $path;
-            }
-            
-            // Store paths as array instead of JSON
-            $data['gallery_images'] = $paths;
+            $data['gallery_images'] = $finalGalleryImages;
         }
 
         $project->update($data);
 
-        $project->refresh(); // important!
+        $project->refresh();
 
         return $this->success(new ProjectResource($project), 'Project updated');
     } catch (\Exception $e) {

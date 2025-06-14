@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Projects;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -12,6 +13,37 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class ProjectsFactory extends Factory
 {
     protected $model = Projects::class;
+
+    private function generatePlaceholderImage($width, $height, $folder, $seed)
+    {
+        // Create directories if they don't exist
+        Storage::disk('public')->makeDirectory("projects/{$folder}");
+        
+        $filename = "{$seed}.jpg";
+        $path = "projects/{$folder}/{$filename}";
+        $fullPath = storage_path("app/public/{$path}");
+        
+        // Create image
+        $image = imagecreate($width, $height);
+        
+        // Generate colors based on seed for consistency
+        srand(crc32($seed));
+        $bgColor = imagecolorallocate($image, rand(100, 255), rand(100, 255), rand(100, 255));
+        $textColor = imagecolorallocate($image, rand(0, 100), rand(0, 100), rand(0, 100));
+        
+        // Fill background
+        imagefill($image, 0, 0, $bgColor);
+        
+        // Add text
+        $text = "{$width}x{$height}";
+        imagestring($image, 5, ($width - strlen($text) * 10) / 2, ($height - 15) / 2, $text, $textColor);
+        
+        // Save image
+        imagejpeg($image, $fullPath, 80);
+        imagedestroy($image);
+        
+        return "storage/{$path}";
+    }
 
     public function definition()
     {
@@ -41,18 +73,18 @@ class ProjectsFactory extends Factory
             'start_date'      => $start->format('Y-m-d'),
             'completion_date' => $end->format('Y-m-d'),
 
-            'main_image'      => "https://picsum.photos/seed/{$mainSeed}/800/600",
-            'render_image'    => "https://picsum.photos/seed/{$renderSeed}/800/600",
+            'main_image'      => $this->generatePlaceholderImage(800, 600, 'main', $mainSeed),
+            'render_image'    => $this->generatePlaceholderImage(800, 600, 'render', $renderSeed),
             'gallery_images'  => [
-                "https://picsum.photos/seed/{$gallerySeeds[0]}/400/300",
-                "https://picsum.photos/seed/{$gallerySeeds[1]}/400/300",
-                "https://picsum.photos/seed/{$gallerySeeds[2]}/400/300",
-                "https://picsum.photos/seed/{$gallerySeeds[3]}/400/300",
-                "https://picsum.photos/seed/{$gallerySeeds[4]}/400/300",
-                "https://picsum.photos/seed/{$gallerySeeds[5]}/400/300",
-                "https://picsum.photos/seed/{$gallerySeeds[6]}/400/300",
-                "https://picsum.photos/seed/{$gallerySeeds[7]}/400/300",
-                "https://picsum.photos/seed/{$gallerySeeds[8]}/400/300",
+                $this->generatePlaceholderImage(400, 300, 'gallery', $gallerySeeds[0]),
+                $this->generatePlaceholderImage(400, 300, 'gallery', $gallerySeeds[1]),
+                $this->generatePlaceholderImage(400, 300, 'gallery', $gallerySeeds[2]),
+                $this->generatePlaceholderImage(400, 300, 'gallery', $gallerySeeds[3]),
+                $this->generatePlaceholderImage(400, 300, 'gallery', $gallerySeeds[4]),
+                $this->generatePlaceholderImage(400, 300, 'gallery', $gallerySeeds[5]),
+                $this->generatePlaceholderImage(400, 300, 'gallery', $gallerySeeds[6]),
+                $this->generatePlaceholderImage(400, 300, 'gallery', $gallerySeeds[7]),
+                $this->generatePlaceholderImage(400, 300, 'gallery', $gallerySeeds[8]),
             ],
 
             'year'            => $this->faker->year,
