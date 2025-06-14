@@ -40,10 +40,34 @@ class ProjectsController extends Controller
     public function store(StoreProjectsRequest $request)
     {
         try {
-            $project = Projects::create($request->validated());
-            return $this->success($project, 'Project created', 201);
+            $data = [...$request->validated()];
+
+            // Handle main image upload
+            if ($request->hasFile('main_image')) {
+                $path = $request->file('main_image')->store('projects/main', 'public');
+                $data['main_image'] = 'storage/' . $path;
+            }
+
+            // Handle render image upload
+            if ($request->hasFile('render_image')) {
+                $path = $request->file('render_image')->store('projects/render', 'public');
+                $data['render_image'] = 'storage/' . $path;
+            }
+
+            // Handle gallery images upload
+            if ($request->hasFile('gallery_images')) {
+                $galleryImages = [];
+                foreach ($request->file('gallery_images') as $file) {
+                    $path = $file->store('projects/gallery', 'public');
+                    $galleryImages[] = 'storage/' . $path;
+                }
+                $data['gallery_images'] = $galleryImages;
+            }
+
+            $project = Projects::create($data);
+            return $this->success(new ProjectResource($project), 'Project created', 201);
         } catch (\Exception $e) {
-            return $this->error('Failed to create project', 500);
+            return $this->error('Failed to create project: ' . $e->getMessage(), 500);
         }
     }
 

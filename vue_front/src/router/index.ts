@@ -62,6 +62,17 @@ const routes: Array<RouteRecordRaw & { meta: RouteMeta }> = [
         },
         props: true, // so that route.params.id becomes a prop
       },
+      {
+        path: "projects/create",
+        name: "ProjectAdd",
+        component: () => import("@/pages/ProjectAdd.vue"),
+        meta: {
+          breadcrumb: [
+            { label: "პროექტები", path: "projects" },
+            { label: "პროექტის შექმნა", path: "/projects/create" },
+          ],
+        },
+      },
 
       {
         path: "projects/:id/edit",

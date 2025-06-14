@@ -1,28 +1,25 @@
 <script setup>
-import { ref, reactive, onMounted } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { getProject, updateProject } from "@/http/projects";
+import { ref, reactive } from "vue";
+import { useRouter } from "vue-router";
+import { createProject } from "@/http/projects";
 import UploadField from "@/components/Upload/UploadField.vue";
 import GalleryUpload from "@/components/Upload/GalleryUpload.vue";
-import { compressFileIfNeeded } from "@/utils/imageCompression";
 import FormCard from "@/components/Form/FormCard.vue";
 import FormSection from "@/components/Form/FormSection.vue";
 import LanguageInputGroup from "@/components/Form/LanguageInputGroup.vue";
 import ToggleSwitch from "@/components/Form/ToggleSwitch.vue";
 import FormInput from "@/components/Form/FormInput.vue";
+import { compressFileIfNeeded } from "@/utils/imageCompression";
 
 const langs = ["ka", "en", "ru"]; // Changed order to put ka first
-const route = useRoute();
 const router = useRouter();
-const id = Number(route.params.id);
 
 const submitting = ref(false);
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const form = reactive({
-  title: { en: "", ka: "", ru: "" },
-  description: { en: "", ka: "", ru: "" },
-  location: { en: "", ka: "", ru: "" },
+  title: { ka: "", en: "", ru: "" }, // Changed order to match langs array
+  description: { ka: "", en: "", ru: "" }, // Changed order to match langs array
+  location: { ka: "", en: "", ru: "" }, // Changed order to match langs array
   status: "ongoing",
   year: new Date().getFullYear(),
   start_date: "",
@@ -32,7 +29,6 @@ const form = reactive({
   main_image: null,
   render_image: null,
   gallery_images: [],
-  existing_gallery_images: [], // Track existing images to keep
 });
 
 const previews = reactive({
@@ -42,55 +38,12 @@ const previews = reactive({
 });
 
 function goBack() {
-  router.push({ name: "ProjectDetail", params: { id } });
-}
-
-async function load() {
-  const res = await getProject(id);
-  const p = res.data.data;
-
-  // Translations - ensure all fields have values
-  form.title = {
-    ka: p.title_ka || "",
-    en: p.title_en || "",
-    ru: p.title_ru || "",
-  };
-  form.description = {
-    ka: p.description_ka || "",
-    en: p.description_en || "",
-    ru: p.description_ru || "",
-  };
-  form.location = {
-    ka: p.location_ka || "",
-    en: p.location_en || "",
-    ru: p.location_ru || "",
-  };
-
-  // Other fields
-  form.status = p.status_code || p.status;
-  form.year = Number(p.year);
-  form.start_date = p.start_date;
-  form.completion_date = p.completion_date;
-  // Convert to proper boolean values
-  form.is_active = Boolean(p.is_active);
-  form.is_featured = Boolean(p.is_featured);
-
-  previews.main_image = backendUrl + p.main_image;
-  form.main_image = null;
-
-  previews.render_image = backendUrl + p.render_image;
-  form.render_image = null;
-
-  previews.gallery_images = p.gallery_images;
-  form.gallery_images = []; // clear old preview paths
-  form.existing_gallery_images = p.gallery_images || []; // Store existing images
+  router.push({ name: "projects" });
 }
 
 async function onSubmit() {
   submitting.value = true;
   const data = new FormData();
-
-  data.append("_method", "PUT");
 
   // 1) Build the nested arrays one field at a time:
   for (const lang of langs) {
@@ -136,12 +89,7 @@ async function onSubmit() {
       }
     }
 
-    // Send existing gallery images to keep (those that weren't removed)
-    form.existing_gallery_images.forEach((imagePath, i) => {
-      data.append(`existing_gallery_images[${i}]`, imagePath);
-    });
-
-    // Compress and append new gallery files
+    // Compress and append gallery files
     const galleryFiles = [];
     for (let i = 0; i < form.gallery_images.length; i++) {
       const file = form.gallery_images[i];
@@ -161,7 +109,7 @@ async function onSubmit() {
       }
     }
 
-    // Append new gallery files
+    // Append gallery files
     galleryFiles.forEach((file, i) => {
       data.append(`gallery_images[${i}]`, file);
     });
@@ -184,32 +132,20 @@ async function onSubmit() {
       }
     }
 
-    const res = await updateProject(id, data);
-    if (res.status === 200) {
-      router.push({ name: "ProjectDetail", params: { id } });
+    const res = await createProject(data);
+    if (res.status === 201) {
+      router.push({ name: "Projects" });
     }
   } catch (err) {
-    console.error("Update failed", err);
+    console.error("Create failed", err);
     if (err.response?.data?.errors) {
       console.error("Server validation errors:", err.response.data.errors);
     }
   } finally {
     submitting.value = false;
+    router.push({ name: "projects" });
   }
 }
-
-function handleRemoveExisting(index) {
-  // Remove from existing_gallery_images array
-  const existingImagePath = previews.gallery_images[index];
-  const existingIndex = form.existing_gallery_images.findIndex(
-    (img) => img === existingImagePath
-  );
-  if (existingIndex !== -1) {
-    form.existing_gallery_images.splice(existingIndex, 1);
-  }
-}
-
-onMounted(load);
 </script>
 
 <template>
@@ -234,13 +170,13 @@ onMounted(load);
               d="M10 19l-7-7m0 0l7-7m-7 7h18"
             ></path>
           </svg>
-          უკან დეტალებზე
+          უკან პროექტებზე
         </button>
         <h1 class="text-4xl font-bold text-gray-900 mb-2">
-          პროექტის რედაქტირება
+          ახალი პროექტის დამატება
         </h1>
         <p class="text-gray-600">
-          განაახლეთ პროექტის ინფორმაცია და მედია ფაილები
+          შექმენით ახალი პროექტი და ატვირთეთ საჭირო მედია ფაილები
         </p>
       </div>
 
@@ -364,9 +300,7 @@ onMounted(load);
               <FormSection title="Main Image">
                 <UploadField
                   v-model="form.main_image"
-                  :preview="
-                    previews.main_image ? `${previews.main_image}` : null
-                  "
+                  :preview="previews.main_image"
                   @update:preview="(p) => (previews.main_image = p)"
                 />
               </FormSection>
@@ -384,7 +318,6 @@ onMounted(load);
                   v-model="form.gallery_images"
                   :previews="previews.gallery_images"
                   @update:previews="(p) => (previews.gallery_images = p)"
-                  @remove:existing="handleRemoveExisting"
                 />
               </FormSection>
             </div>
@@ -396,7 +329,7 @@ onMounted(load);
           <button
             type="submit"
             :disabled="submitting"
-            class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 transition-all duration-200 flex items-center space-x-2"
+            class="px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-xl shadow-lg hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-4 focus:ring-green-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 transition-all duration-200 flex items-center space-x-2"
           >
             <svg
               v-if="submitting"
@@ -430,10 +363,12 @@ onMounted(load);
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
-                d="M5 13l4 4L19 7"
+                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
               ></path>
             </svg>
-            <span>{{ submitting ? "მიმდინარეობს შენახვა…" : "შენახვა" }}</span>
+            <span>{{
+              submitting ? "მიმდინარეობს შექმნა…" : "პროექტის შექმნა"
+            }}</span>
           </button>
         </div>
       </form>

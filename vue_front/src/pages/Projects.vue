@@ -22,6 +22,10 @@ function goToDetail(id) {
   router.push({ name: "ProjectDetail", params: { id } });
 }
 
+function goToAdd() {
+  router.push({ name: "ProjectAdd" });
+}
+
 function formatDate(dateStr) {
   const dt = new Date(dateStr);
   const months = [
@@ -51,7 +55,18 @@ onMounted(fetchProjects);
 
 <template>
   <div class="p-8 font-sans text-gray-800">
-    <h1 class="text-3xl font-bold mb-8">პროექტები</h1>
+    <div class="flex flex-row items-center justify-between mb-8">
+      <h1 class="text-3xl font-bold">პროექტები</h1>
+
+      <div class="mt-8">
+        <button
+          @click="goToAdd"
+          class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors duration-200"
+        >
+          + ახალი პროექტის დამატება
+        </button>
+      </div>
+    </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       <div
